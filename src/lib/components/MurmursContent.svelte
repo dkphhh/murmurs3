@@ -127,7 +127,7 @@
 
 <article
   class="flex flex-col justify-start w-full
-  border-dotted border-1 border-slate-300 rounded-lg dark:border-slate-700"
+  outline-dotted outline-1 outline-slate-300 rounded-lg dark:outline-slate-700"
 >
   {#each murmursData as murmurData}
     {@render murmurSnip(murmurData)}
