@@ -11,7 +11,7 @@
   <!-- 1级标题 -->
   {#snippet h1(props)}
     {@const { children, class: className, ...rest } = props}
-    <h1 class="{className} text-3xl mt-1 font-normal" {...rest}>
+    <h1 class="{className} text-3xl my-1 font-normal" {...rest}>
       {@render children?.()}
     </h1>
   {/snippet}
@@ -35,13 +35,14 @@
   <!-- 正文 -->
   {#snippet p(props)}
     {@const { children, class: className, ...rest } = props}
-    <p class="{className} mb-1" {...rest}>
+    <p class="{className} text-sm leading-6 mb-1 last:mb-0" {...rest}>
       {@render children?.()}
     </p>
   {/snippet}
 
   <!-- 链接 -->
   {#snippet a(props)}
+    <!-- TODO 加一个 hover 显示预览效果 -->
     {@const { children, class: className, ...rest } = props}
     <a
       class="{className} text-sky-700 dark:text-sky-300 hover:text-sky-500 decoration-2 underline decoration-dotted underline-offset-4"
@@ -67,17 +68,7 @@
   {/snippet}
 
   <!-- 图片 -->
-  {#snippet img(props)}
-    {@const { children, class: className, ...rest } = props}
-    <img
-      class="mt-1 rounded-lg {className}"
-      width="320"
-      height="auto"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-      {...rest}
-    />
-  {/snippet}
+  {#snippet img()}{/snippet}
 
   <!-- 无序列表 -->
   {#snippet ul(props)}
@@ -106,6 +97,6 @@
   <!-- 分割线 -->
   {#snippet hr(props)}
     {@const { children, class: className, ...rest } = props}
-    <hr class="w-full border-slate-300 dark:border-slate-700 my-2" />
+    <hr class="w-1/2 border-slate-300 dark:border-slate-700 mt-1" />
   {/snippet}
 </Markdown>

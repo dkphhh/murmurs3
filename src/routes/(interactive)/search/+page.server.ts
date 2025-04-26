@@ -1,4 +1,4 @@
-import { searchMurmurs } from "$lib/server/db/utils";
+import { searchMurmurs } from "$lib/server/db/utils.ts";
 import type { MurmursByRead } from "$lib/server/db/utils.ts"
 import { displayPageNum, PAGE_SIZE } from "$lib/pagination.ts"
 

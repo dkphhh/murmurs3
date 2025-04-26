@@ -1,10 +1,10 @@
 <script lang="ts">
-  import SearchBox from "../../components/SearchBox.svelte";
-  import MainTitleWithSearchBox from "../../components/MainTitleWithSearchBox.svelte";
-  import MurmursContent from "../../components/MurmursContent.svelte";
-  import Pagination from "../../components/pagination.svelte";
+  import SearchBox from "$lib/components/SearchBox.svelte";
+  import MainTitleWithSearchBox from "$lib/components/MainTitleWithSearchBox.svelte";
+  import MurmursContent from "$lib/components/MurmursContent.svelte";
+  import Pagination from "$lib/components/pagination.svelte";
   import { page } from "$app/state";
-  import { searchNotification } from "../../components/notification.svelte.ts";
+  import { searchNotification } from "$lib/components/notification.svelte.ts";
   // 表单返回的结果
   let { data } = $props();
 
@@ -21,9 +21,9 @@
 
   {#if data.searchResult.isValidQuery}
     <!-- 如果有搜索结果，展示结果+搜索框-->
-    <SearchBox query={data.searchResult.query} />
+    <div class="mb-2 w-full"><SearchBox query={data.searchResult.query} /></div>
 
-    <MurmursContent murmurs={data.searchResult.content} />
+    <MurmursContent murmursData={data.searchResult.content} />
     <Pagination
       pageNumList={data.searchResult.pageNumList}
       currentPage={Number(page.url.searchParams.get("page_num"))}

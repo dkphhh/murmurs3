@@ -7,11 +7,11 @@
     uploadingFileNotification,
     notificationTimeout,
     pageLoadingNotification,
-  } from "./notification.svelte.ts";
-  let closeNotification = $state(false);
+  } from "$lib/components/notification.svelte.ts";
+
   // TODO 给通知加一个夜间模式，优化关闭通知的样式
 
-  const messageVisible = $derived(
+  let messageVisible = $derived(
     uploadingFileNotification.isUploading ||
       formNotification?.error == true ||
       uploadingFileNotification.isWrongType ||
@@ -21,26 +21,41 @@
       pageLoadingNotification.error
   );
 
-  // 每当消息可见时重置关闭状态和计时器
+  // 不能根据状态变化自动关闭的通知，将在规定时间后自动关闭
   $effect(() => {
-    if (messageVisible) {
-      closeNotification = false;
-
-      // 设置自动关闭
-      const timer = setTimeout(() => {
-        closeNotification = true;
+    if (formNotification.error) {
+      setTimeout(() => {
+        formNotification.error = false;
       }, notificationTimeout);
-
-      return () => clearTimeout(timer);
+    }
+    if (uploadingFileNotification.isWrongType) {
+      setTimeout(() => {
+        uploadingFileNotification.isWrongType = false;
+      }, notificationTimeout);
+    }
+    if (pageLoadingNotification.error) {
+      setTimeout(() => {
+        pageLoadingNotification.error = false;
+      }, notificationTimeout);
+    }
+    if (searchNotification.query) {
+      setTimeout(() => {
+        searchNotification.query = "";
+      }, notificationTimeout);
+    }
+    if (searchNotification.isValidQuery) {
+      setTimeout(() => {
+        searchNotification.isValidQuery = false;
+      }, notificationTimeout);
     }
   });
 </script>
 
-{#if messageVisible && !closeNotification}
+{#if messageVisible}
   <div
     class="
         fixed top-4 left-1/2 -translate-x-1/2
-        z-50
+        z-100
         shadow-lg
         py-2 px-4
         flex justify-between items-start
@@ -65,7 +80,24 @@
       {/if}
     </div>
     <button
-      onclick={() => (closeNotification = true)}
+      onclick={() => {
+        messageVisible = false;
+        if (formNotification.error) {
+          formNotification.error = false;
+        }
+        if (uploadingFileNotification.isWrongType) {
+          uploadingFileNotification.isWrongType = false;
+        }
+        if (pageLoadingNotification.error) {
+          pageLoadingNotification.error = false;
+        }
+        if (searchNotification.query) {
+          searchNotification.query = "";
+        }
+        if (searchNotification.isValidQuery) {
+          searchNotification.isValidQuery = false;
+        }
+      }}
       class="
             w-6 h-6
             shrink-0 grow-0

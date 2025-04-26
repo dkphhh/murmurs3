@@ -10,7 +10,7 @@
 </script>
 
 <nav
-  class="flex justify-center items-center text-slate-100 dark:text-slate-900 bg-slate-200 dark:bg-slate-800 rounded-lg w-full p-2 mt-4 leading-6"
+  class="flex justify-center items-center text-slate-100 dark:text-slate-900 bg-slate-100 dark:bg-slate-900 rounded-lg w-full p-2 mt-4 leading-6"
 >
   {#each pageNumList as pageNum}
     {@const disable = pageNum === currentPage || pageNum === "……"}

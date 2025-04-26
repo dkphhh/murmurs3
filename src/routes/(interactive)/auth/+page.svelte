@@ -1,8 +1,8 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { authClient } from "$lib/auth/auth-client.js";
-  import { clientSignIn, clientSignUp } from "$lib/auth/utils";
-  import { formNotification } from "../../components/notification.svelte.ts";
+  import { clientSignIn, clientSignUp } from "$lib/auth/utils.ts";
+  import { formNotification } from "$lib/components/notification.svelte.ts";
   import { goto } from "$app/navigation";
 
   const session = authClient.useSession();
@@ -41,6 +41,7 @@
           type="text"
           name="email"
           placeholder="Email"
+          class="rounded-lg"
           bind:value={email}
         />
       </label>
@@ -77,6 +78,7 @@
             required={true}
             type="text"
             name="email"
+            class="rounded-lg"
             placeholder="Email"
             bind:value={email}
             disabled={true}
@@ -88,6 +90,7 @@
             id="password"
             type="password"
             name="password"
+            class="rounded-lg"
             placeholder="Password"
             bind:value={password}
           /></label
@@ -126,6 +129,7 @@
             type="text"
             name="email"
             placeholder="Email"
+            class="rounded-lg"
             bind:value={email}
             disabled={true}
           /></label
@@ -136,6 +140,7 @@
             id="password"
             type="password"
             name="password"
+            class="rounded-lg"
             placeholder="Password"
             bind:value={password}
           /></label

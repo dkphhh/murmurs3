@@ -1,4 +1,4 @@
-import { readMurmurs } from "$lib/server/db/utils";
+import { readMurmurs } from "$lib/server/db/utils.ts";
 import { PAGE_SIZE, displayPageNum } from "$lib/pagination";
 
 

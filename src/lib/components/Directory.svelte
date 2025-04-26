@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { authClient } from "$lib/auth/auth-client.js";
+  import { authClient } from "$lib/auth/auth-client.ts";
   const session = authClient.useSession();
 </script>
 

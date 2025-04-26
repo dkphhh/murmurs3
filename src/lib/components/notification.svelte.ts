@@ -26,11 +26,9 @@ export const uploadingFileNotification: UploadingFileNotification = $state({ isU
 export const pageLoadingNotification = $state({ error: false, errorMessage: "" });
 
 // 搜索相关通知
-export const searchNotification: SearchNotification = ({ isValidQuery: true, query: "" })
+export const searchNotification: SearchNotification = $state({ isValidQuery: true, query: "" })
 
 
 // 通知10秒后自动关闭
-export const notificationTimeout = $state(5000);
-
-
+export const notificationTimeout = $state(3000);
 

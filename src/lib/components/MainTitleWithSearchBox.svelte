@@ -3,7 +3,7 @@
 </script>
 
 <!-- 标题栏 -->
-<div class="flex flex-col justify-center items-center mb-4 w-full">
+<div class="flex flex-col justify-center items-center mb-2 w-full">
   <!-- 标题 -->
   <h1
     class="text-4xl font-bold mb-2 dark:hover:text-slate-300 hover:text-slate-700"

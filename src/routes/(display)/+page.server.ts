@@ -1,4 +1,4 @@
-import { readMurmurs } from "$lib/server/db/utils";
+import { readMurmurs } from "$lib/server/db/utils.ts";
 
 const PAGE_SIZE = Number(process.env.PAGE_SIZE as string);
 

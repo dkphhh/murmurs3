@@ -1,7 +1,7 @@
 <script lang="ts">
   import "../app.css";
-  import DarkModeButton from "./components/ColorModeButton.svelte";
-  import Notification from "./components/Notification.svelte";
+  import DarkModeButton from "$lib/components/ColorModeButton.svelte";
+  import Notification from "$lib/components/Notification.svelte";
 
   let { children } = $props();
 </script>
@@ -14,7 +14,7 @@
   class="
       flex flex-col justify-start items-center
       min-h-screen w-full px-2 py-4
-      font-light font-sans leading-7
+      font-light font-sans
       tracking-wider text-justify
       text-slate-900
       dark:bg-slate-950

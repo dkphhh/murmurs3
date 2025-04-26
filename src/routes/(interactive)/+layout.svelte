@@ -1,6 +1,6 @@
 <script lang="ts">
   import "../../app.css";
-  import Directory from "../components/Directory.svelte";
+  import Directory from "$lib/components/Directory.svelte";
   let { children } = $props();
 </script>
 

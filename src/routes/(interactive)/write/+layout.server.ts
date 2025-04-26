@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { auth } from "$lib/auth/auth.js";
+import { auth } from "$lib/auth/auth.ts";
 
 export async function load({ request }) {
     const session = await auth.api.getSession({
@@ -8,4 +8,9 @@ export async function load({ request }) {
     if (!session?.user) {
         redirect(302, "/auth")
     }
+
+    return {
+        session
+    }
+
 }

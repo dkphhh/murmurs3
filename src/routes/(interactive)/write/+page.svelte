@@ -1,6 +1,6 @@
 <script lang="ts">
-  import WriteArea from "../../components/WriteArea.svelte";
-  import { formNotification } from "../../components/notification.svelte.js";
+  import WriteArea from "$lib/components/WriteArea.svelte";
+  import { formNotification } from "$lib/components/notification.svelte.ts";
   // 表单返回的结果
   let { form, data } = $props();
 
@@ -14,5 +14,5 @@
 </script>
 
 {#if data.session?.user}
-  <WriteArea user={data.session?.user} />
+  <WriteArea user={data.session?.user} action="/write?/create" />
 {/if}

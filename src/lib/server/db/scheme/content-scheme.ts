@@ -33,7 +33,7 @@ export const murmurs = pgTable("murmurs", {
 	searchVector: tsVector("search_vector").generatedAlwaysAs((): SQL =>
 		sql`to_tsvector('jiebacfg', ${murmurs.content})`
 	),
-	authorId: text("author_id").notNull(),
+	authorId: text("author_id").notNull().references(() => user.id, { onDelete: "cascade" }),
 	createdAt: timestamp("created_at").defaultNow().notNull(),
 	updatedAt: timestamp().defaultNow().notNull().$onUpdate(() => new Date()),
 }, (t) => [
@@ -42,6 +42,8 @@ export const murmurs = pgTable("murmurs", {
 		"gin",
 		t.searchVector,
 	),
+	index("murmurs_author_idx").on(t.authorId),
+	index("murmurs_display_idx").on(t.display),
 ]);
 
 // 自定义 tags 字段 
@@ -71,6 +73,19 @@ export const tags = pgTable("tags", {
 		"gin",
 		t.searchVector,
 	),
+	index("tags_tag_idx").on(t.tag),
+]);
+
+
+// mediaFile 的scheme
+export const mediaFile = pgTable("media_file", {
+	uid: serial("uid").primaryKey(),
+	fileUrl: text("file_url").notNull(),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
+	murmurUid: varchar("murmur_uid").notNull().references(() => murmurs.uid, { onDelete: "cascade" }),
+}, (t) => [
+	index("media_file_murmur_idx").on(t.fileUrl),
+	index("media_file_murmur_uid_idx").on(t.murmurUid)
 ]);
 
 
@@ -93,16 +108,26 @@ export const murmursToTags = pgTable("murmurs_to_tags", {
 
 	(t) => [
 		primaryKey({ columns: [t.murmursUid, t.tagsUid] }),
+		index("murmurs_to_tags_murmurs_uid_idx").on(t.murmursUid),
+		index("murmurs_to_tags_tags_uid_idx").on(t.tagsUid),
 	]);
 
-// 创建 relations
+// murmurs relations
 export const murmursRelations = relations(murmurs, ({ many, one }) => ({
 	tags: many(murmursToTags),
+	mediaFiles: many(mediaFile),
 	author: one(user, {
 		fields: [murmurs.authorId],
 		references: [user.id],
 	}),
 }));
+
+export const mediaFileRelations = relations(mediaFile, ({ one }) => ({
+	murmur: one(murmurs, {
+		fields: [mediaFile.murmurUid],
+		references: [murmurs.uid],
+	})
+}))
 
 export const tagsRelations = relations(tags, ({ many }) => ({
 	murmurs: many(murmursToTags),
@@ -128,3 +153,5 @@ export type SelectMurmur = typeof murmurs.$inferSelect;
 export type InsertTags = typeof tags.$inferInsert;
 export type SelectTags = typeof tags.$inferSelect;
 
+export type InsertMediaFile = typeof mediaFile.$inferInsert;
+export type SelectMediaFile = typeof mediaFile.$inferSelect;

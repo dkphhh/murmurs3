@@ -1,10 +1,10 @@
 <script lang="ts">
-  import Pagination from "../../../components/pagination.svelte";
-  import MurmursContent from "../../../components/MurmursContent.svelte";
+  import Pagination from "$lib/components/pagination.svelte";
+  import MurmursContent from "$lib/components/MurmursContent.svelte";
   let { data } = $props();
 </script>
 
-<MurmursContent murmurs={data.pageContent.murmurs} />
+<MurmursContent murmursData={data.pageContent.murmurs} />
 
 <Pagination
   pageNumList={data.pageContent.pageNumList}

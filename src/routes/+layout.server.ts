@@ -1,7 +1,5 @@
 
-import { auth } from "$lib/auth/auth.js";
-
-
+import { auth } from "$lib/auth/auth.ts";
 
 
 export async function load({ request }) {

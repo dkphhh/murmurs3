@@ -129,7 +129,7 @@
 </script>
 
 <div
-  class="z-100 fixed top-1 right-1 flex items-center gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg"
+  class="z-50 fixed top-1 right-1 flex items-center gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg"
 >
   <!-- 白色模式按钮 -->
   <button
