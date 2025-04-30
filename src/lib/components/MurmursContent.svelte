@@ -66,12 +66,6 @@
     });
     return fileToDisplay;
   }
-
- 
- 
-
-  const session = authClient.useSession();
-  let hoveredMurmurUid: string | null = $state(null); // 用于存储当前悬停的murmur的ID
 </script>
 
 {#snippet murmurSnip(murmursData: MurmursByRead)}
