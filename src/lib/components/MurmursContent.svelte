@@ -171,21 +171,23 @@
       </div>
     {/if}
     <!-- 展示 tag -->
-    <div class="flex justify-end mt-2">
-      {#each tags as tag}
-        <a
-          href="/#"
-          class="text-xs text-slate-800 dark:text-slate-200
+    {#if tags.length > 0}
+      <div class="flex justify-end mt-2">
+        {#each tags as tag}
+          <a
+            href="/#"
+            class="text-xs text-slate-800 dark:text-slate-200
           mr-4 last:mr-0
           p-1
           rounded-lg
           bg-slate-100 dark:bg-slate-900
           hover:bg-slate-200 dark:hover:bg-slate-800"
-        >
-          #{tag.tag}</a
-        >
-      {/each}
-    </div>
+          >
+            #{tag.tag}</a
+          >
+        {/each}
+      </div>
+    {/if}
   </div>
 {/snippet}
 

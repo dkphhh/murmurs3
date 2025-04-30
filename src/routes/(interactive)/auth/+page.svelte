@@ -77,13 +77,13 @@
       }}
     >
       <div class="flex flex-col gap-2 items-end">
-        <label for="email" class="">
+        <label for="email">
           Email: <input
             id="email"
             required={true}
             type="text"
             name="email"
-            class="rounded-lg"
+            class="rounded-lg text-slate-500"
             placeholder="Email"
             bind:value={email}
             disabled={true}
@@ -95,7 +95,7 @@
             id="password"
             type="password"
             name="password"
-            class="rounded-lg"
+            class="rounded-lg text-slate-500"
             placeholder="Password"
             bind:value={password}
           /></label

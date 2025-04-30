@@ -8,9 +8,6 @@
   import WriteAreaFileUploadButton from "./WriteAreaFileUploadButton.svelte";
   import { getFileName, getFileExtension } from "$lib/helper.ts";
 
-
-
-
   /**
    * @description 处理文件上传的对象
    * @param @type {File} file - 文件对象
@@ -259,6 +256,7 @@
               overflow-y-auto
               text-justify
               no-scrollbar
+              text-slate-900 dark:text-slate-100
               bg-slate-50 dark:bg-slate-900
               "
       placeholder="请在这里输入内容……"
@@ -438,7 +436,7 @@
       px-2 w-full min-h-15
       flex items-center justify-between gap-2
       border-t-1 border-solid border-slate-300 dark:border-slate-700
-      bg-slate-50 dark:bg-slate-950
+      bg-slate-50 dark:bg-slate-900
       "
     >
       <!-- 菜单栏左侧 -->

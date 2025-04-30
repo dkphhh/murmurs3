@@ -52,7 +52,7 @@
         if (e.target === e.currentTarget) showWriteArea = false;
       }}
     >
-      <div class="lg:w-1/2 w-4/5 p-2 bg-slate-50 rounded-lg">
+      <div class="lg:w-1/2 w-4/5 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
         <WriteArea {user} action="/write?/create" />
       </div>
     </dialog>
