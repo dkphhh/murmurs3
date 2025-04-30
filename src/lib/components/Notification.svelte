@@ -7,9 +7,10 @@
     uploadingFileNotification,
     notificationTimeout,
     pageLoadingNotification,
+    processingNotification,
   } from "$lib/components/notification.svelte.ts";
 
-  // TODO 给通知加一个夜间模式，优化关闭通知的样式
+
 
   let messageVisible = $derived(
     uploadingFileNotification.isUploading ||
@@ -18,7 +19,8 @@
       updated.current ||
       Boolean(navigating.to) ||
       (!searchNotification.isValidQuery && searchNotification.query) ||
-      pageLoadingNotification.error
+      pageLoadingNotification.error ||
+      processingNotification.isProcessing
   );
 
   // 不能根据状态变化自动关闭的通知，将在规定时间后自动关闭
@@ -64,7 +66,7 @@
         rounded-lg
         w-fit"
   >
-    <div class="text-center">
+    <div class="text-center dark:text-slate-100 text-slate-900">
       {#if formNotification?.error == true}
         ⚠️ {formNotification?.description}
       {:else if uploadingFileNotification.isUploading}
@@ -77,6 +79,12 @@
         🚀 正在跳转到 {navigating.to.url.pathname}
       {:else if !searchNotification.isValidQuery && searchNotification.query}
         🔍 {searchNotification.query} 搜索结果为空
+      {:else if pageLoadingNotification.error}
+        ⚠️ {pageLoadingNotification.errorMessage}
+      {:else if processingNotification.isProcessing}
+        ⏳ {processingNotification.description}
+      {:else}
+        ⚠️ 未知错误,也不知道怎么就要给你发通知了
       {/if}
     </div>
     <button
@@ -96,6 +104,10 @@
         }
         if (searchNotification.isValidQuery) {
           searchNotification.isValidQuery = false;
+        }
+        if (processingNotification.isProcessing) {
+          processingNotification.isProcessing = false;
+          processingNotification.description = "";
         }
       }}
       class="

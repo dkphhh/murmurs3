@@ -5,23 +5,21 @@
   import type { UserInSession } from "$lib/server/db/scheme/auth-schema.ts";
   import type { MurmursByRead } from "$lib/server/db/utils.ts";
   import { allowedMediaFileTypes } from "$lib/helper.ts";
+  import WriteAreaFileUploadButton from "./WriteAreaFileUploadButton.svelte";
+  import { getFileName, getFileExtension } from "$lib/helper.ts";
 
-  // TODO：视频上传按钮和预览
-  // TODO：音频上传按钮和预览
-  // TODO：发送语音按钮和预览
-  // TODO：文件上传按钮和预览
-  // TODO：自动粘贴附件，并识别媒体类型
-  // TODO：文件上传到Cloudflare怎么重命名？
-  // TODO:增加标签的增删功能
-  // TODO 分区显示图片、视频、音频和其他附件
+
+
 
   /**
    * @description 处理文件上传的对象
    * @param @type {File} file - 文件对象
+   * @param @type {string} fileType - 文件对象
    * @param @type {number} dbUid - 数据库中的id，如果是处理文件更新，需要用到这个属性
    */
   interface MyFile {
     file: File;
+    fileType?: string;
     dbUid?: number;
   }
 
@@ -64,6 +62,7 @@
           const file = new File(["占位"], item.fileUrl);
           files.push({
             file,
+            fileType: getFileExtension(item.fileUrl),
             dbUid: item.uid,
           });
         });
@@ -79,6 +78,61 @@
   // ............... 处理文件上传 ...............
 
   /**
+   * 查找符合条件的 File 对象的索引。
+   * @param files - MyFile 对象数组。
+   * @param predicate - 一个函数，接收一个 MyFile 对象，如果该文件符合条件则返回 true，否则返回 false。
+   * @returns 符合条件的 File 对象的索引组成的数组。
+   */
+  function findFileIndices(
+    files: MyFile[],
+    predicate: (file: MyFile) => boolean
+  ): number[] {
+    const indices: number[] = [];
+    files.forEach((file, index) => {
+      if (predicate(file)) {
+        indices.push(index);
+      }
+    });
+    return indices;
+  }
+  // 文件分类
+
+  // 图片文件的索引
+  let imageFileIndex = $derived(
+    findFileIndices(files, (file) =>
+      allowedMediaFileTypes.image.includes(
+        file.file.name.split(".").at(-1) as string
+      )
+    )
+  );
+  // 视频文件的索引
+  let videoFileIndex = $derived(
+    findFileIndices(files, (file) =>
+      allowedMediaFileTypes.video.includes(
+        file.file.name.split(".").at(-1) as string
+      )
+    )
+  );
+
+  // 音频文件的索引
+  let audioFileIndex = $derived(
+    findFileIndices(files, (file) =>
+      allowedMediaFileTypes.audio.includes(
+        file.file.name.split(".").at(-1) as string
+      )
+    )
+  );
+
+  // 其他文件的索引
+  let otherFileIndex = $derived(
+    findFileIndices(files, (file) =>
+      allowedMediaFileTypes.other.includes(
+        file.file.name.split(".").at(-1) as string
+      )
+    )
+  );
+
+  /**
    * 处理文件
    * @param file  - 文件
    * @description 处理文件，检查类型并生成预览URL
@@ -87,13 +141,25 @@
   function handleFiles(file: File): void {
     if (
       allowedMediaFileTypes.image.includes(
-        file.type.split("/")[1].toLocaleLowerCase()
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
+      ) ||
+      allowedMediaFileTypes.video.includes(
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
+      ) ||
+      allowedMediaFileTypes.audio.includes(
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
+      ) ||
+      allowedMediaFileTypes.other.includes(
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
       )
     ) {
       const objectUrl = URL.createObjectURL(file);
 
       // 存储文件对象和预览URL，正常上传文件，文件对象是没有 uid 的
-      files = [...files, { file }];
+      files = [
+        ...files,
+        { file, fileType: file.name.split(".").at(-1)?.toLocaleLowerCase() },
+      ];
       filesSrc = [...filesSrc, objectUrl];
     } else {
       uploadingFileNotification.wrongTypeMessage = `${file.type.split("/")[1].toUpperCase()} 是不支持的文件类型`;
@@ -127,7 +193,7 @@
 
 <!-- 表单组件 -->
 <form
-  class=" h-[80vh] w-full"
+  class=" h-[80vh] min-h-100 w-full"
   method="post"
   {action}
   enctype="multipart/form-data"
@@ -201,36 +267,168 @@
 
     {#if filesSrc.length > 0}
       <!-- 附件展示区域 -->
-      <div
-        class="
-        h-full
-        overflow-x-auto
-        flex gap-2
-        p-2
-        pointer-events-auto
-        no-scrollbar
-        "
-        role="region"
-        aria-label="附件展示区域"
-      >
-        {#each filesSrc as src, index}
-          <div class="relative flex-shrink-0 h-full">
-            <img
-              class="w-auto h-full object-cover rounded-lg"
-              {src}
-              alt="user upload"
-              crossorigin="anonymous"
-              referrerpolicy="no-referrer"
-            />
-            <button
-              type="button"
-              class="absolute right-1 top-1 bg-slate-800/70 text-slate-50 rounded-full w-6 h-6 hover:bg-slate-900/90 leading-0"
-              onclick={() => removeFile(index)}
-            >
-              ×
-            </button>
+      <div class="flex flex-col w-full max-h-2/3 flex-shrink-0 overflow-y-auto">
+        <!-- 图片展示 -->
+        {#if imageFileIndex.length > 0}
+          <div
+            class="
+       w-full h-30
+       overflow-x-auto
+       flex-shrink-0
+       flex gap-2
+       p-2
+       pointer-events-auto
+       no-scrollbar
+       "
+            role="region"
+            aria-label="图片附件展示区域"
+          >
+            {#each imageFileIndex as index}
+              {@const fileToDisplay = {
+                name: files[index].file.name,
+                index: index,
+                scr: filesSrc[index],
+              }}
+              <div class="relative flex-shrink-0 h-full">
+                <img
+                  class="w-auto h-full object-cover rounded-lg"
+                  src={fileToDisplay.scr}
+                  alt={fileToDisplay.name}
+                  crossorigin="anonymous"
+                  referrerpolicy="no-referrer"
+                />
+                <button
+                  type="button"
+                  class="absolute right-1 top-1 bg-slate-800/70 text-slate-50 rounded-full w-5 h-5 hover:bg-slate-900/90 leading-0"
+                  onclick={() => removeFile(fileToDisplay.index)}
+                >
+                  ×
+                </button>
+              </div>
+            {/each}
           </div>
-        {/each}
+        {/if}
+
+        <!-- 视频展示 -->
+        {#if videoFileIndex.length > 0}
+          <div
+            class="
+       w-full h-30
+       overflow-x-auto
+       flex-shrink-0
+       flex gap-2
+       p-2
+       pointer-events-auto
+       no-scrollbar"
+            role="region"
+            aria-label="视频附件展示区域"
+          >
+            {#each videoFileIndex as index}
+              {@const fileToDisplay = {
+                name: files[index].file.name,
+                index: index,
+                scr: filesSrc[index],
+              }}
+              <div class="relative flex-shrink-0 h-full">
+                <video
+                  controls
+                  crossorigin="anonymous"
+                  class="w-auto h-full object-cover rounded-lg"
+                  src={fileToDisplay.scr}><track kind="captions" /></video
+                >
+                <button
+                  type="button"
+                  class="absolute right-1 top-1 bg-slate-800/70 text-slate-50 rounded-full w-5 h-5 hover:bg-slate-900/90 leading-0"
+                  onclick={() => removeFile(fileToDisplay.index)}
+                >
+                  ×
+                </button>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        <!-- 音频展示 -->
+        {#if audioFileIndex.length > 0}
+          <div
+            class="
+         w-full
+         overflow-x-auto
+         flex-shrink-0
+         flex gap-2
+         p-2
+         pointer-events-auto
+         no-scrollbar"
+            role="region"
+            aria-label="音频附件展示区域"
+          >
+            {#each audioFileIndex as index}
+              {@const fileToDisplay = {
+                name: files[index].file.name,
+                index: index,
+                scr: filesSrc[index],
+              }}
+              <div class="relative flex-shrink-0">
+                <audio controls crossorigin="anonymous" src={fileToDisplay.scr}>
+                </audio>
+                <button
+                  type="button"
+                  class="absolute right-1 top-1 bg-slate-800/70 text-slate-50 rounded-full w-5 h-5 hover:bg-slate-900/90 leading-0"
+                  onclick={() => removeFile(fileToDisplay.index)}
+                >
+                  ×
+                </button>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        <!-- 其他文件展示 -->
+        {#if otherFileIndex.length > 0}
+          <div
+            class="
+          w-full
+          overflow-x-auto
+          flex-shrink-0
+          flex gap-2
+          p-2
+          pointer-events-auto
+          no-scrollbar"
+            role="region"
+            aria-label="其他附件展示区域"
+          >
+            {#each otherFileIndex as index}
+              {@const fileToDisplay = {
+                name: files[index].file.name,
+                index: index,
+                scr: filesSrc[index],
+              }}
+              <div class="relative flex-shrink-0">
+                <a
+                  href={fileToDisplay.scr}
+                  rel="noreferrer nofollow"
+                  class="text-slate-800 dark:text-slate-200
+                  bg-slate-100 dark:bg-slate-900
+                  hover:bg-slate-200 dark:hover:bg-slate-800
+                  p-2 rounded-lg text-sm
+                  max-w-30 text-wrap text-left block"
+                  target="_blank"
+                >
+                  {action === "/write?/create"
+                    ? fileToDisplay.name
+                    : getFileName(fileToDisplay.scr)}
+                </a>
+                <button
+                  type="button"
+                  class="absolute -right-2 -top-2 bg-slate-800/70 text-slate-50 rounded-full w-5 h-5 hover:bg-slate-900/90 leading-0 text-sm"
+                  onclick={() => removeFile(fileToDisplay.index)}
+                >
+                  ×
+                </button>
+              </div>
+            {/each}
+          </div>
+        {/if}
       </div>
     {/if}
 
@@ -238,46 +436,47 @@
     <div
       class="
       px-2 w-full min-h-15
-      flex items-center justify-between
+      flex items-center justify-between gap-2
       border-t-1 border-solid border-slate-300 dark:border-slate-700
       bg-slate-50 dark:bg-slate-950
       "
     >
-      <!-- 图片上传按钮 -->
-      <label
-        for="fileUpload"
-        class="cursor-pointer p-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-lg flex items-center gap-2"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="size-6"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-          />
-        </svg>
-      </label>
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        class="hidden"
-        name="images"
-        id="fileUpload"
-        onchange={handleFileSelect}
-      />
+      <!-- 菜单栏左侧 -->
+      <div class="flex justify-start gap-4">
+        <!-- 上传附件按钮 -->
+        <WriteAreaFileUploadButton
+          accept={allowedMediaFileTypes
+            .all()
+            .map((value) => `.${value}`)
+            .join(",")}
+          title="上传附件"
+          onclick={handleFileSelect}
+          ><svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13"
+            />
+          </svg>
+        </WriteAreaFileUploadButton>
+      </div>
       <!-- 菜单右侧 -->
       <div class="flex items-center gap-4">
         <!-- 是否显示，默认显示 -->
 
         <label
-          class="flex items-center gap-1 text-slate-900 dark:text-slate-100 p-2 bg-slate-200 dark:bg-slate-800 rounded-lg"
+          class="flex items-center gap-1 text-slate-900 dark:text-slate-100
+          p-2
+          text-base
+          bg-slate-200 dark:bg-slate-800
+          rounded-lg"
           for="displayState"
         >
           <input
@@ -293,7 +492,7 @@
         >
 
         <!-- 计算文字长度 -->
-        <span class="text-slate-900 dark:text-slate-100"
+        <span class="text-slate-900 dark:text-slate-100 text-base"
           >字数：{murmurText.length}
         </span>
         <!-- 发送按钮 -->
@@ -309,6 +508,7 @@
            disabled:bg-gray-500
            font-medium
            rounded-lg
+           text-base
                      "
         >
           发送

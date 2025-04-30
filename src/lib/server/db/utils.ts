@@ -36,10 +36,8 @@ const db = drizzle({ client: dbClient, schema });
 /**
  * 给前端返回的 Murmurs 类型
  *
- * @export
- * @typedef {MurmursByRead}
  */
-export type MurmursByRead = {
+export interface MurmursByRead {
   murmur: SelectMurmur
   tags: SelectTags[];
   files: SelectMediaFile[]
@@ -48,12 +46,45 @@ export type MurmursByRead = {
 /**
  * 给前端搜索页面返回的 Murmurs 类型
  * count 是搜索结果的总数
- * @export 
- * @typedef {MurmursBySearch}
  */
-export type MurmursBySearch = {
+export interface MurmursBySearch {
   allMurmurs: MurmursByRead[];
   count: number;
+}
+/**
+ * 给前端创建 murmur 的类型
+ */
+export interface MurmurToCreate {
+  /** murmur 的内容 */
+  content: string;
+  /** murmur 的作者 id */
+  authorId: string;
+  /** murmur 的附件链接 */
+  fileUrls?: string[]
+  /** murmur 的标签 */
+  tagNames?: string[]
+  /** murmur 是否展示 */
+  display?: boolean
+}
+
+
+
+/**
+ * /**
+ * 给前端创建 murmur 的类型
+ * @export
+ * @interface MurmurToUpdate
+ */
+export interface MurmurToUpdate {
+  murmurUid: string,
+  /** murmur 的内容 */
+  content?: string | undefined;
+  /** murmur 的附件链接 */
+  fileUrls?: string[] | undefined;
+  /** murmur 的标签 */
+  tagNames?: string[] | undefined;
+  /** murmur 是否展示 */
+  display?: boolean | undefined;
 }
 
 
@@ -90,10 +121,8 @@ export async function createTags(murmur: string, tagScope: string[] = TAGS): Pro
         ${tagScope.join(",")}
         
         2. 输出的标签的数量不超过3个，标签之间用","分隔。
-        
-        3. 如果你发现用户输入的内容中有markdown格式的图片插入语句，请在标签中加入"图像"标签。如果没有，请不要在标签中加入"图像"标签。
 
-        4. 我会用一段程序脚本自动处理你的输出，所以你只需要输出标签，不需要加任何提示语句或者引导词。这个自动处理的脚本如下，请不要输出这个脚本无法处理的内容：
+        3. 我会用一段程序脚本自动处理你的输出，所以你只需要输出标签，不需要加任何提示语句或者引导词。这个自动处理的脚本如下，请不要输出这个脚本无法处理的内容：
         const tags = yourOutput.split(",").map((tag) => tag.trim());
         `
       },
@@ -120,12 +149,16 @@ export async function createTags(murmur: string, tagScope: string[] = TAGS): Pro
 
 
 /**
- * 在输入的tags列表中找到数据库里没有的 tags，并向数据插入，返回所有 tag 的 tag 对象
+ * 在输入的tags列表中找到数据库里没有的 tags，并向数据库插入，返回所有 tag 的 tag 对象
  * @param {string[]} tagNames:tag 文本构成的列表
  * @param {Tx} etx: 数据库连接对象
  * @returns {Promise<SelectTags[]>}
  */
 export async function insertNewTags(tagNames: string[], etx?: Tx): Promise<SelectTags[]> {
+
+  if (tagNames.length === 0 || !tagNames) {
+    return []
+  }
 
   const executer = etx ?? db
 
@@ -160,206 +193,24 @@ export async function insertNewTags(tagNames: string[], etx?: Tx): Promise<Selec
   });
 }
 
-/**
- * 上传图片链接到数据库
- * @param {string[]} fileUrls 图片链接
- * @param {string} murmurUid 对应的 murmur 内容 uid
- * @param {Tx} etx 数据库连接对象
- * @returns 
- */
-export async function createMediaFiles(fileUrls: string[], murmurUid: string, etx?: Tx): Promise<SelectMediaFile[]> {
-  if (fileUrls.length === 0) {
-    return []
-  }
-  const executer = etx ?? db
-  const mediaFiles = await executer.insert(mediaFile).values(
-    fileUrls.map((fileUrl) => ({
-      fileUrl: fileUrl,
-      murmurUid: murmurUid,
-    })),
-  ).returning();
-
-
-  return mediaFiles;
-
-
-}
-
 
 /**
- * 批量删除 MediaFiles 
- *
- * @export
- * @async 
- * @param {number[]} filesUid  文件的uid
- * @param {Tx} etx 数据库连接对象
- * @returns {Promise<{
- *   uid: number;
- * }[] | undefined>} 
- */
-export async function deleteMediaFiles(filesUid: number[], etx?: Tx): Promise<SelectMediaFile[]> {
-  if (filesUid.length === 0) {
-    return []
-  }
-  const executer = etx ?? db
-  const tasks = []
-  for (const fileUid of filesUid) {
-    const task = executer.delete(mediaFile).where(eq(mediaFile.uid, fileUid)).returning()
-    tasks.push(task)
-  }
-
-  const res = await Promise.all(tasks)
-  return res.flat()
-
-}
-
-/**
- * 根据 murmurUid 找到对应的文件附件，并将其对应的附件更新为 fileUrls
+ * 给已有的 murmur 更新标签，返回所有标签的对象
  *
  * @export
  * @async
- * @param {string[]} fileUrls 
- * @param {string} murmurUid 
- * @param {Tx} etx 数据库连接对象
- * @returns {Promise<SelectMediaFile[]>} 
+ * @param {string} murmurUid 需要更新的murmur的id
+ * @param {string[]} tagNames  包含所有标签文本的数组
+ * @param {?Tx} etx 数据库连接对象
+ * @returns {Promise<void>} 
  */
-export async function updateMurmurFileUrls(fileUrls: string[], murmurUid: string, etx?: Tx): Promise<SelectMediaFile[]> {
+export async function updateMurmurTags(murmurUid: string, tagNames: string[], etx?: Tx): Promise<SelectTags[]> {
+  if (tagNames.length === 0 || !tagNames) {
+    return []
+  }
 
   const executer = etx ?? db
-
-  return await executer.transaction(async (tx) => {
-
-    // 在数据库中找到原始的murmur附件的对象
-    const oldFileUrls = await tx.query.mediaFile.findMany({
-      where: eq(mediaFile.murmurUid, murmurUid)
-    })
-
-    // 找到需要删除的 url 并删除
-    const fileUrlToDelete = oldFileUrls.filter(file => !fileUrls.includes(file.fileUrl)).map(file => file.uid)
-    await deleteMediaFiles(fileUrlToDelete, tx)
-
-    // 找到需要上传的 url,并上传
-    const oldUrls = oldFileUrls.map(file => file.fileUrl)
-    const fileUrlToCreate = fileUrls.filter(url => !oldUrls.includes(url))
-    await createMediaFiles(fileUrlToCreate, murmurUid, tx)
-
-    // 计算现在数据库中这个 murmur的附件
-    const UpdatedFileUrls = await tx.query.mediaFile.findMany({
-      where: eq(mediaFile.murmurUid, murmurUid)
-    })
-
-    return UpdatedFileUrls
-  })
-
-
-}
-
-
-
-
-/**
- * 想数据库上传 murmur。将 content 写入 murmurs 表，并将 tagNames 写入 tags 表，并将 murmurs 和 tags 关联起来
- * @param {string} content 文本内容
- * @param {string[]} tagNames 标签
- * @param {string[]} fileUrls 附件（图片/音视频/其他格式文件）的链接
- * @param {string} authorId:string 作者的 id
- * @param {boolean} display:boolean 是否展示
- * @param {Tx} etx 数据库连接对象  
- * @returns {Promise<MurmursByRead>}
- */
-export async function createMurmurWithTags(content: string, fileUrls: string[], tagNames: string[] = [], authorId: string, display: boolean = true, etx?: Tx): Promise<MurmursByRead> {
-  const executer = etx ?? db
-  return await executer.transaction(async (tx) => {
-    // 将 content 写入 murmurs 表
-
-
-    if (content.length === 0 && tagNames.length === 0 && fileUrls.length === 0) {
-      throw new Error("输入内容不能为空");
-    }
-
-    // 将文本上传到数据库
-    const [newMurmur] = await tx.insert(murmurs).values({
-      content,
-      authorId,
-      display
-    }).returning();
-
-    // 将图片链接上传到数据库
-
-    const mediaFile = await createMediaFiles(fileUrls, newMurmur.uid, tx)
-
-    // ---------------- 处理tags -----------------------
-
-    // 声明一个 allTags 变量
-    let allTags: SelectTags[] | undefined;
-
-    // 如果有 tags
-    if (tagNames.length > 0) {
-      // 更新tags，并返回所有 tags
-      allTags = await insertNewTags(tagNames, tx);
-
-      // 将 murmur 与 tags 的关系写入 murmursToTags 表
-      await Promise.all(allTags.map((tag) => {
-        return tx.insert(murmursToTags).values({
-          murmursUid: newMurmur.uid,
-          tagsUid: tag.uid,
-        });
-      }));
-    }
-
-    return {
-      murmur: newMurmur,
-      tags: allTags ?? [],
-      files: mediaFile ?? []
-
-    };
-  });
-}
-
-/**
- * 更新 murmur 的内容和标签
- *
- * @param {string} murmurUid 对应需要更新的 murmur 的 uid
- * @param {string} content 对应 murmur 更新后的内容
- * @param {string[]} tagNames 对应 murmur 更新后端 tag
- * @param {string[]} fileUrls 对应 murmur 的文件附件
- * @param {boolean} display 是否展示
- * @param {Tx} etx 数据库连接对象
- * @return {*}  {Promise<{
- *   murmur: SelectMurmur;
- *   tags: SelectTags[];
- * }>}
- */
-export async function updateMurmurs(
-  murmurUid: string,
-  content: string,
-  display: boolean,
-  fileUrls: string[],
-  tagNames: string[],
-  etx?: Tx
-): Promise<MurmursByRead> {
-
-  const executer = etx ?? db
-  return await executer.transaction(async (tx) => {
-    // 更新murmur的content
-    const updatedMurmurs = await tx.update(murmurs).set({
-      content: content,
-      display: display,
-    }).where(eq(murmurs.uid, murmurUid)).returning();
-
-
-    // 如果此时 updatedMurmurs 的长度为零，说明 uid 没有匹配上，抛出错误
-    if (updatedMurmurs.length === 0) {
-      throw new Error(`Uid ${murmurUid} 不正确，没有这条 murmur`);
-    }
-
-
-    const updatedMurmur = updatedMurmurs[0];
-
-
-    //------------------- 处理标签更新---------------------------------
-
-    // 将新增标签加入数据库，返回的 allTags 是包含了所有标签对象的数组
+  return await executer.transaction(async (tx) => { // 将新增标签加入数据库，返回的 allTags 是包含了所有标签对象的数组
     const allTags = await insertNewTags(tagNames, tx);
     const allTagsId = allTags.map((tag) => tag.uid);
 
@@ -395,6 +246,215 @@ export async function updateMurmurs(
     if (valuesToInsert.length > 0) {
       await tx.insert(murmursToTags).values(valuesToInsert);
     }
+
+    return allTags
+  })
+
+}
+
+
+
+
+
+/**
+ * 上传图片链接到数据库
+ * @param {string[]} fileUrls 图片链接
+ * @param {string} murmurUid 对应的 murmur 内容 uid
+ * @param {Tx} etx 数据库连接对象
+ * @returns 
+ */
+export async function createMediaFiles(fileUrls: string[], murmurUid: string, etx?: Tx): Promise<SelectMediaFile[]> {
+  if (fileUrls.length === 0 || !fileUrls) {
+    return []
+  }
+  const executer = etx ?? db
+  const mediaFiles = await executer.insert(mediaFile).values(
+    fileUrls.map((fileUrl) => ({
+      fileUrl: fileUrl,
+      murmurUid: murmurUid,
+    })),
+  ).returning();
+
+
+  return mediaFiles;
+
+
+}
+
+
+/**
+ * 批量删除 MediaFiles 
+ *
+ * @export
+ * @async 
+ * @param {number[]} filesUid  文件的uid
+ * @param {Tx} etx 数据库连接对象
+ * @returns {Promise<{
+ *   uid: number;
+ * }[] | undefined>} 
+ */
+export async function deleteMediaFiles(filesUid: number[], etx?: Tx): Promise<SelectMediaFile[]> {
+  if (filesUid.length === 0 || !filesUid) {
+    return []
+  }
+  const executer = etx ?? db
+  const tasks = []
+  for (const fileUid of filesUid) {
+    const task = executer.delete(mediaFile).where(eq(mediaFile.uid, fileUid)).returning()
+    tasks.push(task)
+  }
+
+  const res = await Promise.all(tasks)
+  return res.flat()
+
+}
+
+/**
+ * 根据 murmurUid 找到对应的文件附件，并将其对应的附件更新为 fileUrls
+ *
+ * @export
+ * @async
+ * @param {string[]} fileUrls 
+ * @param {string} murmurUid 
+ * @param {Tx} etx 数据库连接对象
+ * @returns {Promise<SelectMediaFile[]>} 
+ */
+export async function updateMurmurFileUrls(fileUrls: string[], murmurUid: string, etx?: Tx): Promise<SelectMediaFile[]> {
+
+  if (fileUrls.length === 0 || !fileUrls) {
+    return []
+  }
+
+  const executer = etx ?? db
+
+  return await executer.transaction(async (tx) => {
+
+    // 在数据库中找到原始的murmur附件的对象
+    const oldFileUrls = await tx.query.mediaFile.findMany({
+      where: eq(mediaFile.murmurUid, murmurUid)
+    })
+
+    // 找到需要删除的 url 并删除
+    const fileUrlToDelete = oldFileUrls.filter(file => !fileUrls.includes(file.fileUrl)).map(file => file.uid)
+    await deleteMediaFiles(fileUrlToDelete, tx)
+
+    // 找到需要上传的 url,并上传
+    const oldUrls = oldFileUrls.map(file => file.fileUrl)
+    const fileUrlToCreate = fileUrls.filter(url => !oldUrls.includes(url))
+    await createMediaFiles(fileUrlToCreate, murmurUid, tx)
+
+    // 计算现在数据库中这个 murmur的附件
+    const UpdatedFileUrls = await tx.query.mediaFile.findMany({
+      where: eq(mediaFile.murmurUid, murmurUid)
+    })
+
+    return UpdatedFileUrls
+  })
+
+
+}
+
+
+
+
+/**
+ * 想数据库上传 murmur。将 content 写入 murmurs 表，并将 tagNames 写入 tags 表，并将 murmurs 和 tags 关联起来
+ * @param {MurmurToCreate} murmurToCreate 用于创建 murmur 的必须要数据
+ * @param {Tx} etx 数据库连接对象  
+ * @returns {Promise<MurmursByRead>}
+ */
+export async function createMurmurWithTags(murmurToCreate: MurmurToCreate, etx?: Tx): Promise<MurmursByRead> {
+
+  const { content, tagNames = [], fileUrls = [], authorId, display = true } = murmurToCreate
+
+  const executer = etx ?? db
+  return await executer.transaction(async (tx) => {
+    // 将 content 写入 murmurs 表
+
+
+    if (content.length === 0 && tagNames.length === 0 && fileUrls.length === 0) {
+      throw new Error("输入内容不能为空");
+    }
+
+    // 将文本上传到数据库
+    const [newMurmur] = await tx.insert(murmurs).values({
+      content,
+      authorId,
+      display
+    }).returning();
+
+    // 将图片链接上传到数据库
+
+    const mediaFile = await createMediaFiles(fileUrls, newMurmur.uid, tx)
+
+    // ---------------- 处理tags -----------------------
+
+    // 声明一个 allTags 变量
+    let allTags: SelectTags[] = [];
+
+    // 如果有 tags
+    if (tagNames.length > 0) {
+      // 更新tags，并返回所有 tags
+      allTags = await insertNewTags(tagNames, tx);
+
+      // 将 murmur 与 tags 的关系写入 murmursToTags 表
+      await Promise.all(allTags.map((tag) => {
+        return tx.insert(murmursToTags).values({
+          murmursUid: newMurmur.uid,
+          tagsUid: tag.uid,
+        });
+      }));
+    }
+
+    return {
+      murmur: newMurmur,
+      tags: allTags,
+      files: mediaFile
+
+    };
+  });
+}
+
+
+/**
+ * 更新 murmur 的内容和标签
+ * @export
+ * @async
+ * @param {MurmurToUpdate} murmurToCreate 用于更新 murmur 的必须要数据
+ * @param {?Tx} [etx]  数据库连接对象
+ * @returns {Promise<MurmursByRead>} 
+ */
+export async function updateMurmurs(
+  murmurToCreate: MurmurToUpdate,
+  etx?: Tx
+): Promise<MurmursByRead> {
+  const { murmurUid, content, tagNames = [], fileUrls = [], display = true } = murmurToCreate
+  const executer = etx ?? db
+  return await executer.transaction(async (tx) => {
+
+    // 更新murmur的文本内容 和 显示状态
+    if (content === undefined || content === "") {
+      throw Error("更新文本内容为空")
+    }
+
+    const updatedMurmurs = await tx.update(murmurs).set({
+      content: content,
+      display: display,
+    }).where(eq(murmurs.uid, murmurUid)).returning();
+
+
+    // 如果此时 updatedMurmurs 的长度为零，说明 uid 没有匹配上，抛出错误
+    if (updatedMurmurs.length === 0) {
+      throw new Error(`Uid ${murmurUid} 不正确，没有这条 murmur`);
+    }
+
+
+    const updatedMurmur = updatedMurmurs[0];
+
+
+    //------------------- 处理标签更新---------------------------------
+
+    const allTags = await updateMurmurTags(murmurUid, tagNames, tx);
 
     //------------处理图片的更新-----------------
     const UpdatedFileUrls = await updateMurmurFileUrls(fileUrls, murmurUid, tx)
@@ -441,6 +501,11 @@ export async function readMurmurs(pageNum: number, pageSize: number, etx?: Tx): 
       mediaFiles: {}
     },
   });
+  if (murmursFromDb.length === 0) {
+
+    throw new Error("没有找到 Murmurs 内容");
+  }
+
   const result = murmursFromDb.map(item => {
     const { tags, mediaFiles, ...murmur } = item
     return {
@@ -466,6 +531,9 @@ export async function deleteMurmurs(uids: string[], etx?: Tx): Promise<SelectMur
   const deletedMurmur = await executer
     .delete(murmurs)
     .where(inArray(murmurs.uid, uids)).returning();
+  if (deletedMurmur.length === 0) {
+    throw new Error("没有找到对应的 Murmur");
+  }
 
   return deletedMurmur;
 }
@@ -563,7 +631,15 @@ export async function countMurmursRow(etx?: Tx): Promise<number> {
 export async function createMurmur(murmur: string, fileUrls: string[], authorId: string, display: boolean): Promise<MurmursByRead> {
 
   const tags = await createTags(murmur)
-  const res = await createMurmurWithTags(murmur, fileUrls, tags, authorId, display)
+
+  const murmurToCreate: MurmurToCreate = {
+    content: murmur,
+    authorId: authorId,
+    fileUrls: fileUrls,
+    tagNames: tags,
+    display: display
+  }
+  const res = await createMurmurWithTags(murmurToCreate)
 
   return res
 

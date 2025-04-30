@@ -4,53 +4,81 @@
   import { authClient } from "$lib/auth/auth-client.ts";
   import { allowedMediaFileTypes } from "$lib/helper.ts";
   import { page } from "$app/state";
+  import { getFileName, getFileExtension } from "$lib/helper.ts";
+  import type { SelectMediaFile } from "$lib/server/db/scheme/content-scheme.ts";
 
-  const session = authClient.useSession();
   let {
     murmursData,
   }: {
     murmursData: MurmursByRead[];
   } = $props();
 
+  interface FileToDisplay {
+    file: SelectMediaFile;
+    fileName: string;
+    fileUrl: string;
+  }
+
+  function getFilesToDisplay(files: SelectMediaFile[]): {
+    image: FileToDisplay[];
+    video: FileToDisplay[];
+    audio: FileToDisplay[];
+    other: FileToDisplay[];
+  } {
+    const fileToDisplay: {
+      image: FileToDisplay[];
+      video: FileToDisplay[];
+      audio: FileToDisplay[];
+      other: FileToDisplay[];
+    } = {
+      image: [],
+      video: [],
+      audio: [],
+      other: [],
+    };
+    files.forEach((file) => {
+      const fileType = getFileExtension(file.fileUrl);
+      if (allowedMediaFileTypes.image.includes(fileType)) {
+        fileToDisplay.image.push({
+          file: file,
+          fileName: getFileName(file.fileUrl),
+          fileUrl: file.fileUrl,
+        });
+      } else if (allowedMediaFileTypes.video.includes(fileType)) {
+        fileToDisplay.video.push({
+          file: file,
+          fileName: getFileName(file.fileUrl),
+          fileUrl: file.fileUrl,
+        });
+      } else if (allowedMediaFileTypes.audio.includes(fileType)) {
+        fileToDisplay.audio.push({
+          file: file,
+          fileName: getFileName(file.fileUrl),
+          fileUrl: file.fileUrl,
+        });
+      } else {
+        fileToDisplay.other.push({
+          file: file,
+          fileName: getFileName(file.fileUrl),
+          fileUrl: file.fileUrl,
+        });
+      }
+    });
+    return fileToDisplay;
+  }
+
+ 
+ 
+
+  const session = authClient.useSession();
   let hoveredMurmurUid: string | null = $state(null); // 用于存储当前悬停的murmur的ID
-
-  /**
-   * 获取文件链接的后缀名（不含点），如 jpg、webp、mp4、mp3 等
-   * @param url 文件链接
-   * @returns 后缀名字符串（小写），如果没有后缀返回空字符串
-   */
-  function etFileExtension(url: string): string {
-    // 去除查询参数和哈希
-    const cleanUrl = url.split(/[?#]/)[0];
-    // 匹配最后一个点后的内容
-    const match = cleanUrl.match(/\.([a-zA-Z0-9]+)$/);
-    return match ? match[1].toLowerCase() : "";
-  }
-
-  /**
-   * 获取文件链接中的文件名（包含扩展名）
-   * @param url 文件链接
-   * @returns 文件名字符串，如果没有则返回空字符串
-   */
-  export function getFileName(url: string): string {
-    // 去除查询参数和哈希
-    const cleanUrl = url.split(/[?#]/)[0];
-    // 匹配最后一个斜杠后的内容
-    const match = cleanUrl.match(/\/([^\/]+)$/);
-    return match ? match[1] : "";
-  }
-
-  // TODO：展示 murmurs 的内容下方加上 菜单（修改、threads、等等）按钮，鼠标放到对应murmurs后显示，点击后可以进行操作。暂时先不做
-  // TODO：单独的标签页按钮
-  // TODO: 一个展示tags的列表
-  // TODO: 点击放大图片/视频/音频
 </script>
 
 {#snippet murmurSnip(murmursData: MurmursByRead)}
   {@const tags = murmursData.tags ? murmursData.tags : []}
   {@const files = murmursData.files ? murmursData.files : []}
   <div
-    class="py-4 px-2 border-b-1 border-slate-300 border-dotted dark:border-slate-700 last:border-b-0"
+    class="p-4 border-b-1 border-slate-300 border-dotted dark:border-slate-700 last:border-b-0"
   >
     <!-- 展示时间 -->
     <time
@@ -66,59 +94,95 @@
       {/if}
     </time>
 
-    <!-- 展示内容 -->
+    <!-- 展示文本内容 -->
     <div class="flex flex-col">
       <MarkdownRender markdownText={murmursData.murmur.content} />
     </div>
     <!-- 展示附件 -->
     {#if files.length > 0}
-      <div
-        class="flex gap-2 items-center w-full h-40 overflow-x-auto no-scrollbar mt-1"
-      >
-        <!-- 如果附件展示内容需要滚动 scroll bar 才能看见，需要增加一个提示，提示用户滚动 -->
-
-        {#each files as file}
-          {@const fileType = etFileExtension(file.fileUrl)}
-          {@const fileName = getFileName(file.fileUrl)}
-          {#if allowedMediaFileTypes.image.includes(fileType)}
-            <!-- 图片 -->
-            <img
-              src={file.fileUrl}
-              alt={fileName}
-              class="rounded-lg h-full"
-              crossorigin="anonymous"
-              referrerpolicy="no-referrer"
-            />
-          {:else if allowedMediaFileTypes.video.includes(fileType)}
-            <!-- 视频 -->
-            <video
-              src={file.fileUrl}
-              class="mt-1 rounded-lg"
-              width="320"
-              height="auto"
-              controls><track kind="captions" /></video
+      {@const filesToDisplay = getFilesToDisplay(files)}
+      <div class="flex flex-col w-full mt-1 gap-2">
+        <!-- 展示图片 -->
+        {#if filesToDisplay.image.length > 0}
+          <div
+            class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
+          >
+            {#each filesToDisplay.image as file}
+              <img
+                src={file.fileUrl}
+                alt={file.fileName}
+                crossorigin="anonymous"
+                referrerpolicy="no-referrer"
+                class="h-40 w-auto object-cover rounded-lg"
+              />
+            {/each}
+          </div>
+          <!-- 展示视频 -->
+          {#if filesToDisplay.video.length > 0}
+            <div
+              class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
             >
-          {:else if allowedMediaFileTypes.audio.includes(fileType)}
-            <!-- 音频 -->
-            <audio src={file.fileUrl} class="mt-1 rounded-lg" controls></audio>
-          {:else}
-            <!-- 其他类型文件 -->
-            <a
-              href={file.fileUrl}
-              class="mt-1 rounded-lg text-slate-800 dark:text-slate-200 bg-slate-200 dark:bg-slate-800 p-2"
-              download>{fileName}</a
-            >
+              {#each filesToDisplay.video as file}
+                <video
+                  controls
+                  crossorigin="anonymous"
+                  class="w-auto h-40 object-cover rounded-lg"
+                  src={file.fileUrl}><track kind="captions" /></video
+                >
+              {/each}
+            </div>
           {/if}
-        {/each}
+
+          <!-- 展示音频 -->
+          {#if filesToDisplay.audio.length > 0}
+            <div
+              class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
+            >
+              {#each filesToDisplay.audio as file}
+                <audio controls crossorigin="anonymous" src={file.fileUrl}
+                ></audio>
+              {/each}
+            </div>
+          {/if}
+          <!-- 展示其他附件 -->
+          {#if filesToDisplay.other.length > 0}
+            <div
+              class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
+            >
+              {#each filesToDisplay.other as file}
+                <a
+                  href={file.fileUrl}
+                  target="_blank"
+                  rel="noreferrer nofollow"
+                  class="text-slate-800 dark:text-slate-200
+                  bg-slate-100 dark:bg-slate-900
+                  hover:bg-slate-200 dark:hover:bg-slate-800
+                  p-2
+                  rounded-lg
+                  text-sm
+                  max-w-30 text-wrap text-left block"
+                >
+                  {file.fileName}</a
+                >
+              {/each}
+            </div>
+          {/if}
+        {/if}
       </div>
     {/if}
     <!-- 展示 tag -->
-    <div class="mt-1 hidden">
+    <div class="flex justify-end mt-2">
       {#each tags as tag}
         <a
-          href="/tags/{tag.uid}"
-          class="text-xs text-slate-800 dark:text-slate-200 mb-1 mr-4 p-1 bg-slate-200 rounded-md dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700"
-          >{tag.tag}</a
+          href="/#"
+          class="text-xs text-slate-800 dark:text-slate-200
+          mr-4 last:mr-0
+          p-1
+          rounded-lg
+          bg-slate-100 dark:bg-slate-900
+          hover:bg-slate-200 dark:hover:bg-slate-800"
+        >
+          #{tag.tag}</a
         >
       {/each}
     </div>

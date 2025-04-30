@@ -16,8 +16,16 @@ export interface SearchNotification {
 
 }
 
+export interface processingResponse {
+    isProcessing: boolean,
+    description: string,
+}
+
 // 表单返回结果
 export const formNotification: FromResponse = $state({ error: false })
+
+// 告知用户任务正在处理过程中的通知
+export const processingNotification: processingResponse = $state({ isProcessing: false, description: "" });
 
 // 文件上传相关通知
 export const uploadingFileNotification: UploadingFileNotification = $state({ isUploading: false, isWrongType: false, wrongTypeMessage: "" });

@@ -1,10 +1,10 @@
 import { getMurmurByUid, deleteMurmurs } from "$lib/server/db/utils";
 import { error, fail, redirect } from '@sveltejs/kit';
-import type { Actions } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
 
 
-export async function load({ params }) {
+export const load: PageServerLoad = async ({ params }) => {
 
     const theMurmur = await getMurmurByUid(params.murmurUid);
 
@@ -15,7 +15,8 @@ export async function load({ params }) {
     return {
         pageContent: {
             theMurmur
-        }
+        },
+
     };
 }
 

@@ -12,5 +12,3 @@ export default defineConfig({
 
 });
 
-// TODO：2.0 目标：完全参照 bluesky 重置
-// TODO：增加 blog 板块，和murmurs 合到一起

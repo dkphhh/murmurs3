@@ -1,0 +1,8 @@
+"filename", "language", "Svelte", "TypeScript", "comment", "blank", "total"
+"/Users/dkphhh/dev/murmurs3/src/lib/components/MurmursContent.svelte", "Svelte", 44, 0, -3, 1, 42
+"/Users/dkphhh/dev/murmurs3/src/lib/components/WriteArea.svelte", "Svelte", 191, 0, 6, 7, 204
+"/Users/dkphhh/dev/murmurs3/src/lib/components/WriteAreaFileUploadButton.svelte", "Svelte", 21, 0, 3, 3, 27
+"/Users/dkphhh/dev/murmurs3/src/lib/helper.ts", "TypeScript", 0, 4, 0, 0, 4
+"/Users/dkphhh/dev/murmurs3/test.ts", "TypeScript", 0, 1, 43, 5, 49
+"/Users/dkphhh/dev/murmurs3/vite.config.ts", "TypeScript", 0, 0, -2, 1, -1
+"Total", "-", 256, 5, 47, 17, 325

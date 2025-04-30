@@ -4,7 +4,6 @@ import { S3Client, type S3File } from "bun";
 import heicConvert from 'heic-convert';
 import { allowedMediaFileTypes } from './helper.ts';
 
-// TODO 增加上传其他格式文件的功能
 
 const CF_ID = process.env.CLOUDFLARE_ACCOUNT_ID
 const CF_KEY = process.env.CLOUDFLARE_ACCESS_KEY_ID

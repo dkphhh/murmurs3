@@ -1,7 +1,5 @@
 <script lang="ts">
-  // TODO：重新梳理color mode 的逻辑
-  // TODO：目前会有闪烁的情况出现
-  // TODO：在窄屏上，其他按钮会被color mode button挡住
+
 
   import { onMount } from "svelte";
 

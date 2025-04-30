@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Pagination from "$lib/components/pagination.svelte";
+  import Pagination from "$lib/components/Pagination.svelte";
   import MurmursContent from "$lib/components/MurmursContent.svelte";
 
   let { data } = $props();

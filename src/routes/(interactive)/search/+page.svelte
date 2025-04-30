@@ -2,7 +2,7 @@
   import SearchBox from "$lib/components/SearchBox.svelte";
   import MainTitleWithSearchBox from "$lib/components/MainTitleWithSearchBox.svelte";
   import MurmursContent from "$lib/components/MurmursContent.svelte";
-  import Pagination from "$lib/components/pagination.svelte";
+  import Pagination from "$lib/components/Pagination.svelte";
   import { page } from "$app/state";
   import { searchNotification } from "$lib/components/notification.svelte.ts";
   // 表单返回的结果

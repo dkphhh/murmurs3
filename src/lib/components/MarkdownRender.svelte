@@ -35,18 +35,19 @@
   <!-- 正文 -->
   {#snippet p(props)}
     {@const { children, class: className, ...rest } = props}
-    <p class="{className} text-sm leading-6 mb-1 last:mb-0" {...rest}>
+    <p class="{className} text-sm leading-6 mb-2 last:mb-0" {...rest}>
       {@render children?.()}
     </p>
   {/snippet}
 
   <!-- 链接 -->
   {#snippet a(props)}
-    <!-- TODO 加一个 hover 显示预览效果 -->
+    
     {@const { children, class: className, ...rest } = props}
     <a
       class="{className} text-sky-700 dark:text-sky-300 hover:text-sky-500 decoration-2 underline decoration-dotted underline-offset-4"
       target="_blank"
+      rel="noreferrer nofollow"
       {...rest}
     >
       {@render children?.()}
@@ -58,7 +59,8 @@
     {@const { children, class: className, ...rest } = props}
     <blockquote
       class="{className} bg-slate-100
-            dark:bg-slate-800 p-4
+            dark:bg-slate-900 p-4
+            mb-1 last:mb-0
             rounded-lg
           "
       {...rest}
@@ -67,8 +69,8 @@
     </blockquote>
   {/snippet}
 
-  <!-- 图片 -->
-  {#snippet img()}{/snippet}
+  <!-- 图片
+  {#snippet img()}{/snippet} -->
 
   <!-- 无序列表 -->
   {#snippet ul(props)}
