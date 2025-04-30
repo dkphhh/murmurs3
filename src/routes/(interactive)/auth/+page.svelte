@@ -21,6 +21,11 @@
   });
 </script>
 
+<svelte:head>
+  <title>Authentication |Dkphhh's Murmurs</title>
+  <meta name="description" content="Forbidden Area!" />
+</svelte:head>
+
 <div class="flex flex-col justify-center items-center h-[80vh]">
   <!-- 用户未登录，显示邮箱输入框，检查邮箱是否已经注册 -->
   {#if !form && !$session.data?.user}

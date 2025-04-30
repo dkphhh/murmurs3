@@ -24,6 +24,7 @@
 // TODO: 给所有的 <a></a>  加一个 hover 显示预览效果
 // TODO:自定义一个音频展示的样式，暂时的想法是做成一个圆角矩形的按钮，重点是原型的暂停/考试按钮，圆周用红色展示播放进度
 
+// TODO：在图片或视频加载完成前，显示一个低质量的图像占位符或纯色块，可以改善用户感知性能
 
 
 
@@ -210,50 +211,9 @@
 // 这种方案保留了你现有的通知组件和状态管理逻辑，只添加了一个持久化层来处理跨页面/跨请求的通知传递。
 
 
-
-console.log(Boolean("")) // true;
-
-
+const a = 1
+console.log(a.toString())
 
 
-//     {#if allowedMediaFileTypes.image.includes(fileType)}
-//     <!-- 图片 -->
-// <div class="relative flex-shrink-0 h-full">
-//   <img
-//     class="w-auto h-full object-cover rounded-lg"
-//     src={filesSrc[index]}
-//     alt={fileName}
-//     crossorigin="anonymous"
-//     referrerpolicy="no-referrer"
-//   />
-//   <button
-//     type="button"
-//     class="absolute right-1 top-1 bg-slate-800/70 text-slate-50 rounded-full w-6 h-6 hover:bg-slate-900/90 leading-0"
-//     onclick={() => removeFile(index)}
-//   >
-//     ×
-//   </button>
-// </div>
-//   {:else if allowedMediaFileTypes.video.includes(fileType)}
-//     <!-- 视频 -->
-//     <video
-//       src={filesSrc[index]}
-//       class="mt-1 rounded-lg"
-//       width="320"
-//       height="auto"
-//       controls
-//     >
-//       <track kind="captions" />
-//     </video>
-//   {:else if allowedMediaFileTypes.audio.includes(fileType)}
-//     <!-- 音频 -->
-//     <audio src={filesSrc[index]} class="mt-1 rounded-lg" controls
-//     ></audio>
-//   {:else}
-//     <!-- 其他类型文件 -->
-//     <a
-//       href={filesSrc[index]}
-//       class="mt-1 rounded-lg text-slate-800 dark:text-slate-200 bg-slate-200 dark:bg-slate-800 p-2"
-//       download>{fileName}</a
-//     >
-//   {/if} 
+
+

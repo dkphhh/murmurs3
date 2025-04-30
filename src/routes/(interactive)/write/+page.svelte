@@ -13,6 +13,11 @@
   });
 </script>
 
+<svelte:head>
+  <title>Write Murmur |Dkphhh's Murmurs</title>
+  <meta name="description" content="It's time to write something" />
+</svelte:head>
+
 {#if data.session?.user}
   <WriteArea user={data.session?.user} action="/write?/create" />
 {/if}

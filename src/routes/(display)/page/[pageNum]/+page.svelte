@@ -4,6 +4,11 @@
   let { data } = $props();
 </script>
 
+<svelte:head>
+  <title>PAGE-{data.pageContent.currentPage.toString()} |Dkphhh's Murmurs</title>
+  <meta name="description" content="Dkphhh's Murmurs // Dkphhh 的呓语" />
+</svelte:head>
+
 <MurmursContent murmursData={data.pageContent.murmurs} />
 
 <Pagination

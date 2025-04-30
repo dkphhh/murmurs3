@@ -64,7 +64,7 @@ export const actions = {
                     }
                     await updateMurmurs(fullMurmurToUpdate);
 
-                    console.log("文件和标签处理完成", fileUrls, tags);
+
 
                 } catch (error) {
                     console.error("处理文件和标签时出错:", (error as Error).message);

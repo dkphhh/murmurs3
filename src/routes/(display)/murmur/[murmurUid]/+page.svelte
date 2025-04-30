@@ -19,7 +19,7 @@
   // murmur的 create 和 update 操作都可能有后台处理流程
   // 用户刚进来这个页面看到的不是完整结果
   // 所以需要在这里弹出通知告知用户
-  
+
   onMount(() => {
     const params = page.url.searchParams;
     if (params.get("processing") === "true") {
@@ -40,6 +40,13 @@
     }
   });
 </script>
+
+<svelte:head>
+  <title
+    >@{murmursData.murmur.createdAt.toLocaleString()} |Dkphhh's Murmurs</title
+  >
+  <meta name="description" content="Dkphhh's Murmurs // Dkphhh 的呓语" />
+</svelte:head>
 
 <div
   class="min-h-[90vh] md:min-h-[80vh] w-full

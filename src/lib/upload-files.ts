@@ -5,6 +5,7 @@ import heicConvert from 'heic-convert';
 import { allowedMediaFileTypes } from './helper.ts';
 
 
+
 const CF_ID = process.env.CLOUDFLARE_ACCOUNT_ID
 const CF_KEY = process.env.CLOUDFLARE_ACCESS_KEY_ID
 const CF_SECRET = process.env.CLOUDFLARE_SECRET_ACCESS_KEY
@@ -134,7 +135,7 @@ async function uploadFile(file: File): Promise<string> {
     } else {
         pressedFile = {
             data: file,
-            fileName: file.name
+            fileName: generateUid() + "." + fileType
         }
     }
 

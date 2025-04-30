@@ -16,6 +16,15 @@
   });
 </script>
 
+<svelte:head>
+  <title>
+    {data.searchResult.isValidQuery
+      ? `Search ${data.searchResult.query}`
+      : "Search Murmur"} |Dkphhh's Murmurs</title
+  >
+  <meta name="description" content="Actually, This site is my notebook" />
+</svelte:head>
+
 <main class="flex flex-col items-center justify-center w-full h-full">
   <!-- 搜索结果页面 -->
 

@@ -77,7 +77,7 @@
     <!-- 展示时间 -->
     <time
       datetime={murmursData.murmur.createdAt.toISOString()}
-      class="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1"
+      class="text-xs font-semibold text-slate-700 dark:text-slate-300"
     >
       {#if !page.url.pathname.startsWith("/murmur")}
         <a href="/murmur/{murmursData.murmur.uid}" class="hover:text-slate-500">
@@ -89,7 +89,7 @@
     </time>
 
     <!-- 展示文本内容 -->
-    <div class="flex flex-col">
+    <div class="flex flex-col mt-2">
       <MarkdownRender markdownText={murmursData.murmur.content} />
     </div>
     <!-- 展示附件 -->
@@ -105,6 +105,7 @@
               <img
                 src={file.fileUrl}
                 alt={file.fileName}
+                loading="lazy"
                 crossorigin="anonymous"
                 referrerpolicy="no-referrer"
                 class="h-40 w-auto object-cover rounded-lg"
@@ -119,6 +120,7 @@
               {#each filesToDisplay.video as file}
                 <video
                   controls
+                  preload="metadata"
                   crossorigin="anonymous"
                   class="w-auto h-40 object-cover rounded-lg"
                   src={file.fileUrl}><track kind="captions" /></video
@@ -133,7 +135,11 @@
               class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
             >
               {#each filesToDisplay.audio as file}
-                <audio controls crossorigin="anonymous" src={file.fileUrl}
+                <audio
+                  controls
+                  preload="metadata"
+                  crossorigin="anonymous"
+                  src={file.fileUrl}
                 ></audio>
               {/each}
             </div>

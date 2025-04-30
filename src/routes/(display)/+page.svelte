@@ -7,6 +7,11 @@
   let user = data.session?.user;
 </script>
 
+<svelte:head>
+  <title>Dkphhh's Murmurs</title>
+  <meta name="description" content="Dkphhh's Murmurs // Dkphhh 的呓语" />
+</svelte:head>
+
 <MurmursContent murmursData={data.murmurs} />
 
 <!-- 写 murmurs 的按钮 -->
