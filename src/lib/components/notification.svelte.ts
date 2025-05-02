@@ -6,8 +6,8 @@ export interface FromResponse {
 
 export interface UploadingFileNotification {
     isUploading: boolean,
-    isWrongType: boolean,
-    wrongTypeMessage: string,
+    isWrong: boolean,
+    wrongMessage: string,
 }
 
 export interface SearchNotification {
@@ -28,7 +28,7 @@ export const formNotification: FromResponse = $state({ error: false })
 export const processingNotification: processingResponse = $state({ isProcessing: false, description: "" });
 
 // 文件上传相关通知
-export const uploadingFileNotification: UploadingFileNotification = $state({ isUploading: false, isWrongType: false, wrongTypeMessage: "" });
+export const uploadingFileNotification: UploadingFileNotification = $state({ isUploading: false, isWrong: false, wrongMessage: "" });
 
 // 页面加载相关通知
 export const pageLoadingNotification = $state({ error: false, errorMessage: "" });

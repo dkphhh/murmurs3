@@ -126,7 +126,7 @@ async function resizeImage(file: File, width: number = 2048, height?: number): P
  */
 async function uploadFile(file: File): Promise<string> {
     // 确定文件类型
-    const fileType = file.type.split("/")[1];
+    const fileType = file.name.split(".").pop() || "";
 
     let pressedFile: {
         data: Blob;

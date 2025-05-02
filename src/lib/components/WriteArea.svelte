@@ -129,6 +129,10 @@
     )
   );
 
+  // 最大文件大小
+  const MAX_FILE_SIZE_MB = 30;
+  const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024; // 30MB in bytes
+
   /**
    * 处理文件
    * @param file  - 文件
@@ -136,6 +140,12 @@
    * @returns {void}
    */
   function handleFiles(file: File): void {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      uploadingFileNotification.wrongMessage = `文件大小超过 ${MAX_FILE_SIZE_MB}MB`;
+      uploadingFileNotification.isWrong = true;
+      return;
+    }
+
     if (
       allowedMediaFileTypes.image.includes(
         (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
@@ -159,12 +169,12 @@
       ];
       filesSrc = [...filesSrc, objectUrl];
     } else {
-      uploadingFileNotification.wrongTypeMessage = `${file.type.split("/")[1].toUpperCase()} 是不支持的文件类型`;
-      uploadingFileNotification.isWrongType = false; // 先重置
-      setTimeout(() => {
-        // 用setTimeout可以避免被
-        uploadingFileNotification.isWrongType = true; // 再设为 true
-      }, 0);
+      uploadingFileNotification.wrongMessage = `${file.type.split("/")[1].toUpperCase()} 是不支持的文件类型`;
+      uploadingFileNotification.isWrong = true;
+      // setTimeout(() => {
+      //   // 用setTimeout可以避免被
+      //   uploadingFileNotification.isWrong = true; // 再设为 true
+      // }, 0);
     }
   }
 

@@ -6,51 +6,66 @@ IMAGE_NAME="murmurs3"
 CONTAINER_NAME="murmurs3"
 REMOTE_USER="root"
 REMOTE_HOST="206.237.2.2"
-REMOTE_APP_DIR="/root/murmurs3/murmurs3" # 服务器上的应用目录
-ENV_FILE_LOCAL_PATH=".env.production" # 本地 .env 文件路径
-REMOTE_ENV_FILE_PATH="/root/murmurs3/murmurs3/.env.production" # 服务器上 .env 文件路径 (确保目录存在)
+REMOTE_APP_DIR="/root/murmurs3/app" # 服务器上的应用目录
 DOCKERFILE_PATH="Dockerfile" # Dockerfile 路径
 
 # --- 步骤 ---
 
+echo ">>> 1. 上传前的准备"
 
-echo ">>> 1. Uploading .env file to server (using rsync)..."
-# 使用 rsync 上传 .env 文件，通常比 scp 快，且只传差异
-rsync -avz $ENV_FILE_LOCAL_PATH ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_ENV_FILE_PATH}
+echo ">>> 构建 build"
+bun run build 
 
-echo ">>> 2. Running deployment commands on server via SSH..."
+echo ">>> 上传 build 和 .env Dockerfile .dockerignore 到服务器..."
+
+# 注意 source 路径末尾没有斜杠，表示复制整个目录
+# destination 路径是应用目录
+# 使用 --delete 可以在服务器上删除本地 build 目录中不存在的文件，保持同步
+rsync -avz --delete build ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}/ 
+
+# 上传 .env.production 文件
+rsync -avz .env.production ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}"/.env.production"
+
+# 上传 Dockerfile 和 .dockerignore 文件
+rsync -avz Dockerfile ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}"/Dockerfile"
+rsync -avz .dockerignore ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}"/.dockerignore"
+
+# 上传 package.json 和 bun.lock 文件
+rsync -avz package.json ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}"/package.json"
+rsync -avz bun.lock ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}"/bun.lock"
+
+
+
+echo ">>> 2. 进入远程服务器..."
 ssh ${REMOTE_USER}@${REMOTE_HOST} << EOF
     set -e # 在远程服务器上也使用 set -e
     echo ">>> 进入 $REMOTE_APP_DIR..."
     mkdir -p $REMOTE_APP_DIR
     cd $REMOTE_APP_DIR
 
-    echo ">>> Pulling latest code from Git repository..."
-    git pull
-
     echo ">>> Building Docker image locally..."
     # 使用新的 Dockerfile 构建镜像
     docker build -t $IMAGE_NAME -f $DOCKERFILE_PATH .
 
-    echo ">>> Stopping old container..."
-    docker stop $CONTAINER_NAME
-    echo ">>> Removing old container..."
-    docker rm $CONTAINER_NAME 
+    echo ">>> 停止旧容器..."
+    docker stop $CONTAINER_NAME || true # 如果容器不存在，忽略错误
+    echo ">>> 删除旧容器..."
+    docker rm $CONTAINER_NAME  || true # 如果容器不存在，忽略错误
 
 
-    echo ">>> Running new container..."
+    echo ">>> 运行新容器..."
     docker run -d \
         --name $CONTAINER_NAME \
         -p 3000:3000 \
-        --env-file $REMOTE_ENV_FILE_PATH \
-        --network murmurs3-network \
+        --env-file ${REMOTE_APP_DIR}"/.env.production" \
         --restart unless-stopped \
+        --network murmurs3-network \
         $IMAGE_NAME 
 
-    echo ">>> Cleaning up old Docker images..."
+    echo ">>> 删除悬空的旧镜像..."
     docker image prune -f # 删除悬空的旧镜像
 
-    echo ">>> Deployment on server finished."
+    echo ">>> 线上部署完成."
 EOF
 
-echo ">>> Deployment script completed."
+echo ">>> 部署脚本完成."

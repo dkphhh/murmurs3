@@ -10,12 +10,10 @@
     processingNotification,
   } from "$lib/components/notification.svelte.ts";
 
-
-
   let messageVisible = $derived(
     uploadingFileNotification.isUploading ||
       formNotification?.error == true ||
-      uploadingFileNotification.isWrongType ||
+      uploadingFileNotification.isWrong ||
       updated.current ||
       Boolean(navigating.to) ||
       (!searchNotification.isValidQuery && searchNotification.query) ||
@@ -30,9 +28,9 @@
         formNotification.error = false;
       }, notificationTimeout);
     }
-    if (uploadingFileNotification.isWrongType) {
+    if (uploadingFileNotification.isWrong) {
       setTimeout(() => {
-        uploadingFileNotification.isWrongType = false;
+        uploadingFileNotification.isWrong = false;
       }, notificationTimeout);
     }
     if (pageLoadingNotification.error) {
@@ -71,8 +69,8 @@
         ⚠️ {formNotification?.description}
       {:else if uploadingFileNotification.isUploading}
         📤 uploading……
-      {:else if uploadingFileNotification.isWrongType}
-        ⚠️ {uploadingFileNotification.wrongTypeMessage}
+      {:else if uploadingFileNotification.isWrong}
+        ⚠️ {uploadingFileNotification.wrongMessage}
       {:else if updated.current}
         ✅ 有版本更新，请刷新页面
       {:else if navigating.to}
@@ -93,8 +91,8 @@
         if (formNotification.error) {
           formNotification.error = false;
         }
-        if (uploadingFileNotification.isWrongType) {
-          uploadingFileNotification.isWrongType = false;
+        if (uploadingFileNotification.isWrong) {
+          uploadingFileNotification.isWrong = false;
         }
         if (pageLoadingNotification.error) {
           pageLoadingNotification.error = false;

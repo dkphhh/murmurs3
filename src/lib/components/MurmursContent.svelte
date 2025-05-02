@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { MurmursByRead } from "$lib/server/db/utils.ts";
   import MarkdownRender from "$lib/components/MarkdownRender.svelte";
-  import { authClient } from "$lib/auth/auth-client.ts";
   import { allowedMediaFileTypes } from "$lib/helper.ts";
   import { page } from "$app/state";
   import { getFileName, getFileExtension } from "$lib/helper.ts";
@@ -112,61 +111,61 @@
               />
             {/each}
           </div>
-          <!-- 展示视频 -->
-          {#if filesToDisplay.video.length > 0}
-            <div
-              class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
-            >
-              {#each filesToDisplay.video as file}
-                <video
-                  controls
-                  preload="metadata"
-                  crossorigin="anonymous"
-                  class="w-auto h-40 object-cover rounded-lg"
-                  src={file.fileUrl}><track kind="captions" /></video
-                >
-              {/each}
-            </div>
-          {/if}
+        {/if}
+        <!-- 展示视频 -->
+        {#if filesToDisplay.video.length > 0}
+          <div
+            class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
+          >
+            {#each filesToDisplay.video as file}
+              <video
+                controls
+                preload="metadata"
+                crossorigin="anonymous"
+                class="w-auto h-40 object-cover rounded-lg"
+                src={file.fileUrl}><track kind="captions" /></video
+              >
+            {/each}
+          </div>
+        {/if}
 
-          <!-- 展示音频 -->
-          {#if filesToDisplay.audio.length > 0}
-            <div
-              class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
-            >
-              {#each filesToDisplay.audio as file}
-                <audio
-                  controls
-                  preload="metadata"
-                  crossorigin="anonymous"
-                  src={file.fileUrl}
-                ></audio>
-              {/each}
-            </div>
-          {/if}
-          <!-- 展示其他附件 -->
-          {#if filesToDisplay.other.length > 0}
-            <div
-              class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
-            >
-              {#each filesToDisplay.other as file}
-                <a
-                  href={file.fileUrl}
-                  target="_blank"
-                  rel="noreferrer nofollow"
-                  class="text-slate-800 dark:text-slate-200
+        <!-- 展示音频 -->
+        {#if filesToDisplay.audio.length > 0}
+          <div
+            class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
+          >
+            {#each filesToDisplay.audio as file}
+              <audio
+                controls
+                preload="metadata"
+                crossorigin="anonymous"
+                src={file.fileUrl}
+              ></audio>
+            {/each}
+          </div>
+        {/if}
+        <!-- 展示其他附件 -->
+        {#if filesToDisplay.other.length > 0}
+          <div
+            class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
+          >
+            {#each filesToDisplay.other as file}
+              <a
+                href={file.fileUrl}
+                target="_blank"
+                rel="noreferrer nofollow"
+                class="text-slate-800 dark:text-slate-200
                   bg-slate-100 dark:bg-slate-900
                   hover:bg-slate-200 dark:hover:bg-slate-800
                   p-2
                   rounded-lg
                   text-sm
                   max-w-30 text-wrap text-left block"
-                >
-                  {file.fileName}</a
-                >
-              {/each}
-            </div>
-          {/if}
+              >
+                {file.fileName}</a
+              >
+            {/each}
+          </div>
         {/if}
       </div>
     {/if}
