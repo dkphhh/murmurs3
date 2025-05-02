@@ -143,7 +143,7 @@
             {#each filesToDisplay.image as file}
               <a href={file.fileUrl} class="glightbox flex-shrink-0">
                 <img
-                  src="{file.fileUrl}"
+                  src="https://dkphhh.me/cdn-cgi/image/height=400,quality=100/{file.fileUrl}"
                   alt={file.fileName}
                   loading="lazy"
                   crossorigin="anonymous"
