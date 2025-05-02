@@ -3,18 +3,16 @@
 
     WORKDIR /app
     
-    # 复制 package.json 和 lock 文件
-    COPY package.json bun.lock ./
-    
+    # 复制所有源代码
+    COPY . .
+
     # 安装构建依赖 (Python 和 build-essential)
     RUN apt-get update && apt-get install -y --no-install-recommends python3 build-essential
 
     # 安装所有依赖 (包括 devDependencies 用于构建)
     RUN bun install
     
-    # 复制所有源代码
-    COPY . .
-    
+
     # 运行构建命令
     RUN bun run build
     
@@ -24,7 +22,7 @@
     WORKDIR /app
     
     # 从 builder 阶段复制必要的依赖描述文件
-    COPY --from=builder /app/package.json /app/bun.lockb ./
+    COPY --from=builder /app/package.json /app/bun.lock ./
     
     # 安装生产依赖 (利用缓存)
     # 如果你的生产依赖很少变动，可以先只复制 package.json/bun.lockb 安装，再复制构建产物
