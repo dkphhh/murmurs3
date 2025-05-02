@@ -1,7 +1,7 @@
 # --- Build Stage ---
     FROM oven/bun:latest AS builder
 
-    WORKDIR /app
+    WORKDIR /
     
     # 复制 package.json 和 lock 文件
     COPY package.json bun.lockb ./
@@ -18,10 +18,10 @@
 # --- Production Stage ---
     FROM oven/bun:latest
     
-    WORKDIR /app
+    WORKDIR /
     
     # 从 builder 阶段复制必要的依赖描述文件
-    COPY --from=builder /app/package.json /app/bun.lockb ./
+    COPY --from=builder /package.json /bun.lockb ./
     
     # 安装生产依赖 (利用缓存)
     # 如果你的生产依赖很少变动，可以先只复制 package.json/bun.lockb 安装，再复制构建产物
@@ -29,7 +29,7 @@
     RUN bun install --production
     
     # 从 builder 阶段复制构建好的应用
-    COPY --from=builder /app/build ./build
+    COPY --from=builde /build ./build
     
     # 暴露端口
     EXPOSE 3000
