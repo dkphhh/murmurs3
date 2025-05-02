@@ -11,7 +11,7 @@
 
 
     # 安装所有依赖 (包括 devDependencies 用于构建)
-    RUN bun install
+    RUN bun install --no-cache
     
 
     # 运行构建命令
