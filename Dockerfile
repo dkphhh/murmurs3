@@ -6,6 +6,9 @@
     # 复制 package.json 和 lock 文件
     COPY package.json bun.lock ./
     
+    # 安装构建依赖 (Python 和 build-essential)
+    RUN apt-get update && apt-get install -y --no-install-recommends python3 build-essential
+
     # 安装所有依赖 (包括 devDependencies 用于构建)
     RUN bun install
     
