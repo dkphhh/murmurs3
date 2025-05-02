@@ -67,7 +67,7 @@ export const actions = {
 
 
                 } catch (error) {
-                    console.error("处理文件和标签时出错:", (error as Error).message);
+                    console.error("处理文件和标签时出错:", (error as Error));
                     //由于这个异步函数是在后台执行的，没有 await，所以这里抛出的错误不会被外部的 try catch 模块接收，所以不抛出 error，只返回一个失败的结果
                     return fail(422, {
                         error: true,
@@ -78,7 +78,7 @@ export const actions = {
             })()
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
             // throw error as Error
             return fail(422, {
                 error: true,
@@ -89,7 +89,13 @@ export const actions = {
 
 
         // 因为标签和文件上传操作在后台执行，所以跳转时带上提示用户处理中的查询参数
-        redirect(303, `/murmur/${murmurUid}?processing=true`);
+
+        if (files.length > 0) {
+            // 文件上传在后台执行，所以需要给用户一个提示
+            redirect(303, `/murmur/${murmurUid}?processing=true`);
+        }
+
+        redirect(303, `/murmur/${murmurUid}`);
 
 
 
@@ -151,9 +157,8 @@ export const actions = {
 
                     await updateMurmurFileUrls(fileUrls, murmurId)
 
-                    console.log("文件处理完成", fileUrls);
                 } catch (error) {
-                    console.error("处理文件更新时出错:", (error as Error).message);
+                    console.error("处理文件更新时出错:", (error as Error));
                     //由于这个异步函数是在后台执行的，没有 await，所以这里抛出的错误不会被外部的 try catch 模块接收，所以不抛出 error，只返回一个失败的结果
                     return fail(422, {
                         error: true,
@@ -164,7 +169,7 @@ export const actions = {
             })()
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
             // throw error as Error
             return fail(422, {
                 error: true,

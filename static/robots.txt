@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /auth/
+Disallow: /write/
+
+Sitemap: https://dkphhh.me/sitemap.xml

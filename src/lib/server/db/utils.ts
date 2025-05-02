@@ -679,3 +679,33 @@ export async function getMurmurByUid(uid: string, etx?: Tx): Promise<MurmursByRe
   });
 }
 
+export async function readAllMurmurs(etx?: Tx): Promise<MurmursByRead[]> {
+  const executer = etx ?? db
+  const murmursFromDb = await executer.query.murmurs.findMany({
+    where: eq(murmurs.display, true),
+    orderBy: [desc(murmurs.createdAt)],
+    with: {
+      tags: {
+        columns: {
+          murmursUid: false,
+          tagsUid: false,
+        },
+        with: {
+          tags: {},
+        },
+      },
+      mediaFiles: {}
+    },
+  });
+
+  const result = murmursFromDb.map(item => {
+    const { tags, mediaFiles, ...murmur } = item
+    return {
+      murmur,
+      tags: tags.map(item => item.tags),
+      files: mediaFiles
+    }
+  })
+
+  return result;
+}

@@ -1,6 +1,7 @@
 // TODO: 2.0 规划
 
-// TODO: 迁移到 node ？
+
+// TODO: 迁移到 node ？看看用 bun 运行是否文档再说
 
 // TODO：参照 bluesky、apple 原生 app 重置，注意设计移动端ui
 // TODO：展示 murmurs 的内容下方加上 菜单（修改、threads、等等）按钮，鼠标放到对应murmurs后显示，点击后可以进行操作
@@ -18,16 +19,20 @@
 // TODO：在窄屏上，其他按钮会被color mode button挡住
 
 // TODO: 点击放大图片/视频/音频
-// TODO：单独的标签页按钮
+// TODO: 单独的标签页按钮
+
+// TODO：增加运行日志功能
 
 // TODO：在 writeArea  自动粘贴附件，并识别媒体类型
-// TODO:增加标签的增删功能
+// TODO: 增加标签的增删功能
 
 // TODO: 给所有的 <a></a>  加一个 hover 显示预览效果
-// TODO:自定义一个音频展示的样式，暂时的想法是做成一个圆角矩形的按钮，重点是原型的暂停/考试按钮，圆周用红色展示播放进度
+// TODO: 自定义一个音频展示的样式，暂时的想法是做成一个圆角矩形的按钮，重点是原型的暂停/考试按钮，圆周用红色展示播放进度
 
 // TODO：在图片或视频加载完成前，显示一个低质量的图像占位符或纯色块，可以改善用户感知性能
+// TODO: 优化图片和视频的缓存策略
 
+// TODO: 优化向服务器传输 build 目录的方式，scp 太慢了
 
 
 // 
@@ -213,9 +218,37 @@
 // 这种方案保留了你现有的通知组件和状态管理逻辑，只添加了一个持久化层来处理跨页面/跨请求的通知传递。
 
 
-const a = 1
-console.log(a.toString())
+import { readAllMurmurs } from './src/lib/server/db/utils.ts';
+
+
+export async function GET() {
+	const allMurmurs = await readAllMurmurs();
+
+	const urls = allMurmurs.map((murmur) => {
+		return `
+        <url>
+        <loc>https://dkphhh.me/murmur/${murmur.murmur.uid}</loc>
+        <lastmod>${murmur.murmur.updatedAt.toISOString()}</lastmod>
+        </url>`
+	}).toString();
 
 
 
+	return `
+		<?xml version="1.0" encoding="UTF-8" ?>
+		<urlset
+			xmlns="https://www.sitemaps.org/schemas/sitemap/0.9"
+			xmlns:xhtml="https://www.w3.org/1999/xhtml"
+			xmlns:mobile="https://www.google.com/schemas/sitemap-mobile/1.0"
+			xmlns:news="https://www.google.com/schemas/sitemap-news/0.9"
+			xmlns:image="https://www.google.com/schemas/sitemap-image/1.1"
+			xmlns:video="https://www.google.com/schemas/sitemap-video/1.1"
+		>
+			${urls}
+		</urlset>`.trim()
+}
 
+
+const res =  await GET()
+
+console.log(res)

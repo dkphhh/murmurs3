@@ -28,6 +28,7 @@
     <img
       class="mb-2 w-25"
       alt="Written By Human Not By AI"
+      loading="lazy"
       src="/Written-By-Human-Not-By-AI-Badge-white.svg"
     />
   </footer>
