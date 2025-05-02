@@ -7,7 +7,8 @@
     COPY . .
 
     # 安装构建依赖 (Python 和 build-essential)
-    RUN apt-get update && apt-get install -y --no-install-recommends python3 build-essential
+    RUN apt-get update && apt-get install -y --no-install-recommends python3 build-essential libvips-dev && rm -rf /var/lib/apt/lists/*
+
 
     # 安装所有依赖 (包括 devDependencies 用于构建)
     RUN bun install
