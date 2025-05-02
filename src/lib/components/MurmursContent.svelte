@@ -5,6 +5,8 @@
   import { page } from "$app/state";
   import { getFileName, getFileExtension } from "$lib/helper.ts";
   import type { SelectMediaFile } from "$lib/server/db/scheme/content-scheme.ts";
+  import { onMount } from "svelte";
+  import "glightbox/dist/css/glightbox.min.css";
 
   let {
     murmursData,
@@ -65,6 +67,44 @@
     });
     return fileToDisplay;
   }
+
+  onMount(() => {
+    import("glightbox").then((GLightbox) => {
+      // 初始化 GLightbox
+      const lightboxInstance = GLightbox.default({
+        touchNavigation: true,
+        loop: true,
+        autoplayVideos: false,
+      });
+
+      // 清理函数
+      return () => {
+        if (lightboxInstance) {
+          lightboxInstance.destroy();
+        }
+      };
+    });
+  });
+
+  // let lightboxInstance: any = null;
+
+  // onMount(() => {
+  //   // 在 onMount 中初始化 GLightbox，确保只在客户端执行
+  //   lightboxInstance = GLightbox({
+  //     touchNavigation: true,
+  //     loop: true,
+  //     autoplayVideos: false,
+  //     // selector: '.glightbox' // GLightbox 默认选择器就是 .glightbox，可以省略
+  //   });
+
+  //   // 返回一个清理函数，在组件销毁时调用
+  //   return () => {
+  //     if (lightboxInstance) {
+  //       lightboxInstance.destroy();
+  //       lightboxInstance = null;
+  //     }
+  //   };
+  // });
 </script>
 
 {#snippet murmurSnip(murmursData: MurmursByRead)}
@@ -101,14 +141,16 @@
             class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
           >
             {#each filesToDisplay.image as file}
-              <img
-                src={file.fileUrl}
-                alt={file.fileName}
-                loading="lazy"
-                crossorigin="anonymous"
-                referrerpolicy="no-referrer"
-                class="h-40 w-auto object-cover rounded-lg"
-              />
+              <a href={file.fileUrl} class="glightbox flex-shrink-0">
+                <img
+                  src="{file.fileUrl}"
+                  alt={file.fileName}
+                  loading="lazy"
+                  crossorigin="anonymous"
+                  referrerpolicy="no-referrer"
+                  class="h-40 w-auto object-cover rounded-lg"
+                />
+              </a>
             {/each}
           </div>
         {/if}
@@ -118,13 +160,35 @@
             class="flex gap-2 items-center w-full overflow-x-auto no-scrollbar"
           >
             {#each filesToDisplay.video as file}
-              <video
-                controls
-                preload="metadata"
-                crossorigin="anonymous"
-                class="w-auto h-40 object-cover rounded-lg"
-                src={file.fileUrl}><track kind="captions" /></video
-              >
+              <a
+                href={file.fileUrl}
+                class="glightbox relative"
+                aria-label="Video player"
+                ><video
+                  preload="metadata"
+                  crossorigin="anonymous"
+                  class="w-auto h-40 object-cover rounded-lg"
+                  src={file.fileUrl}><track kind="captions" /></video
+                >
+                <div
+                  class="absolute inset-0 flex items-center justify-center bg-slate-700/50 rounded-lg"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6 text-slate-50"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+                    />
+                  </svg>
+                </div>
+              </a>
             {/each}
           </div>
         {/if}

@@ -18,7 +18,6 @@
 // TODO：目前会有闪烁的情况出现
 // TODO：在窄屏上，其他按钮会被color mode button挡住
 
-// TODO: 点击放大图片/视频/音频
 // TODO: 单独的标签页按钮
 
 // TODO：增加运行日志功能
@@ -217,38 +216,3 @@
 
 // 这种方案保留了你现有的通知组件和状态管理逻辑，只添加了一个持久化层来处理跨页面/跨请求的通知传递。
 
-
-import { readAllMurmurs } from './src/lib/server/db/utils.ts';
-
-
-export async function GET() {
-	const allMurmurs = await readAllMurmurs();
-
-	const urls = allMurmurs.map((murmur) => {
-		return `
-        <url>
-        <loc>https://dkphhh.me/murmur/${murmur.murmur.uid}</loc>
-        <lastmod>${murmur.murmur.updatedAt.toISOString()}</lastmod>
-        </url>`
-	}).toString();
-
-
-
-	return `
-		<?xml version="1.0" encoding="UTF-8" ?>
-		<urlset
-			xmlns="https://www.sitemaps.org/schemas/sitemap/0.9"
-			xmlns:xhtml="https://www.w3.org/1999/xhtml"
-			xmlns:mobile="https://www.google.com/schemas/sitemap-mobile/1.0"
-			xmlns:news="https://www.google.com/schemas/sitemap-news/0.9"
-			xmlns:image="https://www.google.com/schemas/sitemap-image/1.1"
-			xmlns:video="https://www.google.com/schemas/sitemap-video/1.1"
-		>
-			${urls}
-		</urlset>`.trim()
-}
-
-
-const res =  await GET()
-
-console.log(res)

@@ -25,12 +25,6 @@ if (!CF_SECRET) {
 }
 
 
-
-console.log("CF_ID:", CF_ID);
-console.log("CF_KEY:", CF_KEY);
-console.log("CF_SECRET:", CF_SECRET);
-
-
 // Initialize R2
 const client = new S3Client({
     accessKeyId: CF_KEY,
