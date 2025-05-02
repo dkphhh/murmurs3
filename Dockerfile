@@ -4,7 +4,7 @@
     WORKDIR /app
     
     # 复制 package.json 和 lock 文件
-    COPY package.json bun.lockb ./
+    COPY package.json bun.lock ./
     
     # 安装所有依赖 (包括 devDependencies 用于构建)
     RUN bun install
