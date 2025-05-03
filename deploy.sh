@@ -62,8 +62,9 @@ ssh ${REMOTE_USER}@${REMOTE_HOST} << EOF
         --network murmurs3-network \
         $IMAGE_NAME 
 
-    echo ">>> 删除悬空的旧镜像..."
-    docker image prune -f # 删除悬空的旧镜像
+    echo ">>> 删除所有未使用 Docker 资源..."
+    docker container prune -f # 删除未使用的容器
+    docker image prune -a -f # 删除未使用的镜像
 
     echo ">>> 线上部署完成."
 EOF

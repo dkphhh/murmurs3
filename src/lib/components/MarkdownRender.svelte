@@ -35,7 +35,7 @@
   <!-- 正文 -->
   {#snippet p(props)}
     {@const { children, class: className, ...rest } = props}
-    <p class="{className} text-sm leading-6 mb-2 last:mb-0" {...rest}>
+    <p class="{className} leading-6 mb-2 last:mb-0" {...rest}>
       {@render children?.()}
     </p>
   {/snippet}
@@ -69,8 +69,8 @@
     </blockquote>
   {/snippet}
 
-  <!-- 图片
-  {#snippet img()}{/snippet} -->
+  <!-- 图片 -->
+  {#snippet img()}{/snippet}
 
   <!-- 无序列表 -->
   {#snippet ul(props)}

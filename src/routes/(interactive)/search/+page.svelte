@@ -39,8 +39,9 @@
     />
   {:else}
     <!-- 如果没有搜索结果，直接展示搜索框 -->
-    <div class="flex items-center justify-center w-full h-[70vh]">
+    <div class="flex items-center justify-center w-full h-[65vh]">
       <MainTitleWithSearchBox />
     </div>
   {/if}
+  <div class="h-[17vh]"></div>
 </main>

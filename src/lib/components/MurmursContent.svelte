@@ -108,7 +108,7 @@
     </time>
 
     <!-- 展示文本内容 -->
-    <div class="flex flex-col mt-2">
+    <div class="flex flex-col mt-2 text-sm">
       <MarkdownRender markdownText={murmursData.murmur.content} />
     </div>
     <!-- 展示附件 -->
