@@ -4,6 +4,6 @@
 </script>
 
 <!-- 外层容器 -->
-<div class="h-[90vh] md:h-[80vh] w-full">
+<div class="h-[82vh] w-full">
   {@render children()}
 </div>

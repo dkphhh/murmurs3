@@ -63,8 +63,12 @@ ssh ${REMOTE_USER}@${REMOTE_HOST} << EOF
         $IMAGE_NAME 
 
     echo ">>> 删除所有未使用 Docker 资源..."
-    docker container prune -f # 删除未使用的容器
-    docker image prune -a -f # 删除未使用的镜像
+
+    echo ">>> 删除未使用的容器..."
+    docker container prune -f 
+    
+    echo ">>> 删除未使用的镜像..."
+    docker image prune -a -f 
 
     echo ">>> 线上部署完成."
 EOF

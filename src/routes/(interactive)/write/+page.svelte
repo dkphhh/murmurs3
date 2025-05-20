@@ -20,4 +20,5 @@
 
 {#if data.session?.user}
   <WriteArea user={data.session?.user} action="/write?/create" />
+  <!-- <div class="h-[10vh]"></div> -->
 {/if}

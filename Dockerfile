@@ -11,7 +11,7 @@
     # 安装生产依赖 
     RUN bun install --production
     
-    # 从 builder 阶段复制构建好的应用
+    
     COPY build ./build
     
     # 暴露端口

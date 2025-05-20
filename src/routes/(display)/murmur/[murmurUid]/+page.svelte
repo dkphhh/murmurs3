@@ -1,7 +1,7 @@
 <script lang="ts">
   import MurmursContent from "$lib/components/MurmursContent.svelte";
   import { authClient } from "$lib/auth/auth-client.ts";
-  import { goto, invalidate, replaceState } from "$app/navigation";
+  import { goto, replaceState } from "$app/navigation";
   import {
     formNotification,
     processingNotification,

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import "../../app.css";
   import Directory from "$lib/components/Directory.svelte";
   let { children } = $props();
 </script>
