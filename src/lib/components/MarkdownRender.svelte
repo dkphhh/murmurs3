@@ -42,7 +42,6 @@
 
   <!-- 链接 -->
   {#snippet a(props)}
-    
     {@const { children, class: className, ...rest } = props}
     <a
       class="{className} text-sky-700 dark:text-sky-300 hover:text-sky-500 decoration-2 underline decoration-dotted underline-offset-4"
@@ -99,6 +98,16 @@
   <!-- 分割线 -->
   {#snippet hr(props)}
     {@const { children, class: className, ...rest } = props}
-    <hr class="w-1/2 border-slate-300 dark:border-slate-700 mt-1" />
+    <hr class="w-1/2 border-slate-300 dark:border-slate-700 mt-1 {className}" />
+  {/snippet}
+
+  <!-- 代码块 -->
+  {#snippet code(props)}
+    {@const { children, class: className, ...rest } = props}
+    <pre
+      class="bg-slate-100 dark:bg-slate-900 p-4 rounded-lg mb-1 last:mb-0"
+      {...rest}>
+      <code class={className}>{@render children?.()}</code>
+    </pre>
   {/snippet}
 </Markdown>

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
-
+@plugin "daisyui";
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* add the code bellow */

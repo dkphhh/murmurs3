@@ -3,8 +3,8 @@
   import WriteArea from "$lib/components/WriteArea.svelte";
 
   let { data } = $props();
-  let showWriteArea = $state(false);
   let user = data.session?.user;
+  let dialogElement = $state<HTMLDialogElement | undefined>(undefined);
 </script>
 
 <svelte:head>
@@ -20,12 +20,13 @@
     <button
       type="button"
       aria-label="Write Murmurs button"
-      onclick={() => (showWriteArea = true)}
       class="
     bg-slate-200 dark:bg-slate-800
     hover:bg-slate-300 dark:hover:bg-slate-700
     p-3 rounded-full
+
     "
+      onclick={() => dialogElement?.showModal()}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -44,17 +45,17 @@
     </button>
   </div>
   <!-- 展示writeArea组件的dialog -->
-  {#if showWriteArea}
-    <dialog
-      open
-      class="fixed inset-0 w-full h-full bg-black/40 flex items-center justify-center z-60"
-      onclick={(e) => {
-        if (e.target === e.currentTarget) showWriteArea = false;
-      }}
-    >
-      <div class="lg:w-1/2 w-9/10 p-2 bg-slate-50 dark:bg-slate-900 rounded-lg">
-        <WriteArea {user} action="/write?/create" />
-      </div>
-    </dialog>
-  {/if}
+  <dialog class="modal" bind:this={dialogElement}>
+    <div class="modal-box py-8 px-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+      <form method="dialog">
+        <button
+          class="btn btn-sm btn-circle btn-ghost absolute right-0 top-0 hover:bg-slate-300 dark:hover:bg-slate-700
+          "
+        >
+          ✕</button
+        >
+      </form>
+      <WriteArea {user} action="/write?/create" />
+    </div>
+  </dialog>
 {/if}

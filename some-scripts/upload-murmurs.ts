@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as csv from 'fast-csv';
-import { createTags, insertNewTags } from "./src/lib/server/db/utils"
-import * as schema from "./src/lib/server/db/scheme/content-scheme.ts";
+import { createTags, insertNewTags } from "../src/lib/server/db/utils.ts"
+import * as schema from "../src/lib/server/db/scheme/content-scheme.ts";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { dbClient } from "./src/lib/server/db/db.ts";
+import { dbClient } from "../src/lib/server/db/db.ts";
 
 
 const db = drizzle({ client: dbClient, schema });
