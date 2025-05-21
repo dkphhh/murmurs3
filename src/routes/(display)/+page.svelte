@@ -8,7 +8,7 @@
 </script>
 
 <svelte:head>
-  <title>Dkphhh's Murmurs</title>
+  <title>Dkphhh's Murmurs / Dkphhh 的呓语</title>
   <meta name="description" content="Dkphhh's Murmurs // Dkphhh 的呓语" />
 </svelte:head>
 

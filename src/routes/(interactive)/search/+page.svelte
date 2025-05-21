@@ -20,7 +20,7 @@
   <title>
     {data.searchResult.isValidQuery
       ? `Search ${data.searchResult.query}`
-      : "Search Murmur"} |Dkphhh's Murmurs</title
+      : "Search Murmur"} | Dkphhh's Murmurs / Dkphhh 的呓语</title
   >
   <meta name="description" content="Actually, This site is my notebook" />
 </svelte:head>

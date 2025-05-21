@@ -10,7 +10,7 @@ export async function GET() {
         <loc>https://dkphhh.me/murmur/${murmur.murmur.uid}</loc>
         <lastmod>${murmur.murmur.updatedAt.toISOString()}</lastmod>
         </url>`
-    }).toString();
+    }).join("");
 
 
 

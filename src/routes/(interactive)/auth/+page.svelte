@@ -22,7 +22,7 @@
 </script>
 
 <svelte:head>
-  <title>Authentication |Dkphhh's Murmurs</title>
+  <title>Authentication | Dkphhh's Murmurs / Dkphhh 的呓语</title>
   <meta name="description" content="Forbidden Area!" />
 </svelte:head>
 

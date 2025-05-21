@@ -14,7 +14,7 @@
 </script>
 
 <svelte:head>
-  <title>Write Murmur |Dkphhh's Murmurs</title>
+  <title>Write Murmur | Dkphhh's Murmurs / Dkphhh 的呓语</title>
   <meta name="description" content="It's time to write something" />
 </svelte:head>
 

@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-  <title>PAGE-1 |Dkphhh's Murmurs</title>
+  <title>PAGE-1 |Dkphhh's Murmurs / Dkphhh 的呓语</title>
   <meta name="description" content="Dkphhh's Murmurs // Dkphhh 的呓语" />
 </svelte:head>
 

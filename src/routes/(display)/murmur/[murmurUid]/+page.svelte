@@ -43,7 +43,8 @@
 
 <svelte:head>
   <title
-    >@{murmursData.murmur.createdAt.toLocaleString()} |Dkphhh's Murmurs</title
+    >@{murmursData.murmur.createdAt.toLocaleString()} | Dkphhh's Murmurs / Dkphhh
+    的呓语</title
   >
   <meta name="description" content="Dkphhh's Murmurs // Dkphhh 的呓语" />
 </svelte:head>
