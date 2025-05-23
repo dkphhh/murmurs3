@@ -11,8 +11,8 @@ export async function GET() {
 <description>
 ${murmur.murmur.content}
 </description>
-<author>dkphhh@foxmail.com</author>
-<guid isPermaLink="true">${murmur.murmur.uid}</guid>
+<author>dkphhh@foxmail.com (Dkphhh)</author>
+<guid isPermaLink="false">${murmur.murmur.uid}</guid>
 <pubDate>${murmur.murmur.createdAt.toUTCString()}</pubDate>
 </item>
         `
@@ -25,11 +25,11 @@ ${murmur.murmur.content}
     <rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
 <channel>
 <title>Dkphhh's Murmurs / Dkphhh 的呓语</title>
-<atom:link href="blog_link" rel="self" type="application/rss+xml" />
+<atom:link href="https://dkphhh.me/feed" rel="self" type="application/rss+xml" />
 <link>https://dkphhh.me</link>
 <description>Dkphhh's Murmurs // Dkphhh 的呓语</description>
 <language>zh-CN</language>
-<managingEditor>dkphhh@foxmail.com</managingEditor>
+<managingEditor>dkphhh@foxmail.com (Dkphhh)</managingEditor>
 <pubDate>${new Date().toUTCString()}</pubDate>
 ${murmursContent}
 </channel>

@@ -3,7 +3,10 @@
   import DarkModeButton from "$lib/components/ColorModeButton.svelte";
   import Notification from "$lib/components/Notification.svelte";
 
+
   let { children } = $props();
+
+
 </script>
 
 <DarkModeButton />
