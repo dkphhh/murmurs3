@@ -2,11 +2,15 @@
   import "../app.css";
   import DarkModeButton from "$lib/components/ColorModeButton.svelte";
   import Notification from "$lib/components/Notification.svelte";
+  import { localNotification } from "$lib/components/notification.svelte.ts";
+  let { children, data } = $props();
 
-
-  let { children } = $props();
-
-
+  $effect(() => {
+    if (data?.notification) {
+      localNotification.type = data.notification.type;
+      localNotification.description = data.notification.description;
+    }
+  });
 </script>
 
 <DarkModeButton />

@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
+  import { enhance } from "$app/forms";
+
   let isFocus = $state(false);
   let { query = "" } = $props();
   let isAdjustHeight = $derived(isFocus && query.length > 10);
+  let formElement: HTMLFormElement;
 
   /**
    * 自动调整搜索框高度
@@ -30,28 +32,17 @@
     const textarea = e.target as HTMLTextAreaElement;
     textarea.style.height = "auto";
   }
-
-  /**
-   * 处理表单提交事件
-   * @param {undefined}
-   */
-  function submitSearch(): undefined {
-    if (query.trim()) {
-      goto(`/search?q=${encodeURIComponent(query.trim())}&page_num=1`);
-    }
-  }
 </script>
 
 <div class="w-full relative h-12 mb-2">
   <form
-    method="get"
+    bind:this={formElement}
+    method="POST"
+    action="/search?/search"
     class="w-full {isAdjustHeight
       ? 'absolute top-0 left-0 right-0 z-50'
       : 'relative'}"
-    onsubmit={(e: Event) => {
-      e.preventDefault();
-      submitSearch();
-    }}
+    use:enhance
   >
     <!-- 搜索图标 -->
     <div class="absolute left-4 top-6 -translate-y-1/2 text-slate-400">
@@ -71,7 +62,7 @@
       </svg>
     </div>
     <textarea
-      name="q"
+      name="query"
       bind:value={query}
       onfocus={(e: Event) => {
         isFocus = true;
@@ -87,7 +78,7 @@
       onkeydown={(e: KeyboardEvent) => {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
-          submitSearch();
+          formElement.requestSubmit();
         }
       }}
       placeholder="你想搜什么……"

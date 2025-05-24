@@ -2,18 +2,12 @@
   import MurmursContent from "$lib/components/MurmursContent.svelte";
   import { authClient } from "$lib/auth/auth-client.ts";
   import { goto, replaceState } from "$app/navigation";
-  import {
-    formNotification,
-    processingNotification,
-  } from "$lib/components/notification.svelte.ts";
   import { onMount } from "svelte";
   import { page } from "$app/state";
 
-  let { data, form } = $props();
+  let { data } = $props();
   const murmursData = data.pageContent.theMurmur;
   const session = authClient.useSession();
-  formNotification.error = form?.error as boolean;
-  formNotification.description = form?.description as string;
   let showDeleteDialog = $state(false);
 
   // murmur的 create 和 update 操作都可能有后台处理流程
@@ -23,8 +17,6 @@
   onMount(() => {
     const params = page.url.searchParams;
     if (params.get("processing") === "true") {
-      processingNotification.isProcessing = true;
-      processingNotification.description = "正在处理，请稍等...";
       // 移除 URL 中的查询参数，避免用户刷新时再次触发
       const url = page.url;
       url.searchParams.delete("processing");
@@ -32,8 +24,6 @@
 
       const timerId = setTimeout(() => {
         location.reload();
-        processingNotification.isProcessing = false;
-        processingNotification.description = "";
       }, 3000);
 
       return () => clearTimeout(timerId);

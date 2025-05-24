@@ -1,12 +1,12 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { onMount } from "svelte";
-  import { uploadingFileNotification } from "$lib/components/notification.svelte.ts";
   import type { UserInSession } from "$lib/server/db/scheme/auth-schema.ts";
   import type { MurmursByRead } from "$lib/server/db/utils.ts";
   import { allowedMediaFileTypes } from "$lib/helper.ts";
   import WriteAreaFileUploadButton from "./WriteAreaFileUploadButton.svelte";
   import { getFileName, getFileExtension } from "$lib/helper.ts";
+  import { localNotification } from "$lib/components/notification.svelte.ts";
 
   /**
    * @description 处理文件上传的对象
@@ -35,6 +35,7 @@
   let murmurText: string = $state(""); // 文本内容
   let tags: string[] = $state([]); // 标签内容
   let displayState: boolean = $state(true); // 是否显示，默认显示
+  let isUploading: boolean = $state(false); // 是否正在上传
 
   // 表单内容是否为空
   let isEmpty = $derived(murmurText.trim() == "" && filesSrc.length == 0);
@@ -82,7 +83,7 @@
    */
   function findFileIndices(
     files: MyFile[],
-    predicate: (file: MyFile) => boolean
+    predicate: (file: MyFile) => boolean,
   ): number[] {
     const indices: number[] = [];
     files.forEach((file, index) => {
@@ -98,35 +99,35 @@
   let imageFileIndex = $derived(
     findFileIndices(files, (file) =>
       allowedMediaFileTypes.image.includes(
-        file.file.name.split(".").at(-1) as string
-      )
-    )
+        file.file.name.split(".").at(-1) as string,
+      ),
+    ),
   );
   // 视频文件的索引
   let videoFileIndex = $derived(
     findFileIndices(files, (file) =>
       allowedMediaFileTypes.video.includes(
-        file.file.name.split(".").at(-1) as string
-      )
-    )
+        file.file.name.split(".").at(-1) as string,
+      ),
+    ),
   );
 
   // 音频文件的索引
   let audioFileIndex = $derived(
     findFileIndices(files, (file) =>
       allowedMediaFileTypes.audio.includes(
-        file.file.name.split(".").at(-1) as string
-      )
-    )
+        file.file.name.split(".").at(-1) as string,
+      ),
+    ),
   );
 
   // 其他文件的索引
   let otherFileIndex = $derived(
     findFileIndices(files, (file) =>
       allowedMediaFileTypes.other.includes(
-        file.file.name.split(".").at(-1) as string
-      )
-    )
+        file.file.name.split(".").at(-1) as string,
+      ),
+    ),
   );
 
   // 最大文件大小
@@ -141,23 +142,24 @@
    */
   function handleFiles(file: File): void {
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      uploadingFileNotification.wrongMessage = `文件大小超过 ${MAX_FILE_SIZE_MB}MB`;
-      uploadingFileNotification.isWrong = true;
+      localNotification.type = "error";
+      localNotification.description = `文件大小超过 ${MAX_FILE_SIZE_MB}MB`;
+
       return;
     }
 
     if (
       allowedMediaFileTypes.image.includes(
-        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase(),
       ) ||
       allowedMediaFileTypes.video.includes(
-        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase(),
       ) ||
       allowedMediaFileTypes.audio.includes(
-        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase(),
       ) ||
       allowedMediaFileTypes.other.includes(
-        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase(),
       )
     ) {
       const objectUrl = URL.createObjectURL(file);
@@ -169,8 +171,9 @@
       ];
       filesSrc = [...filesSrc, objectUrl];
     } else {
-      uploadingFileNotification.wrongMessage = `${file.type.split("/")[1].toUpperCase()} 是不支持的文件类型`;
-      uploadingFileNotification.isWrong = true;
+      localNotification.type = "error";
+      localNotification.description = `${file.type.split("/")[1].toUpperCase()} 是不支持的文件类型`;
+
       // setTimeout(() => {
       //   // 用setTimeout可以避免被
       //   uploadingFileNotification.isWrong = true; // 再设为 true
@@ -205,7 +208,9 @@
   {action}
   enctype="multipart/form-data"
   use:enhance={({ formData }) => {
-    uploadingFileNotification.isUploading = true;
+    isUploading = true;
+    localNotification.type = "info";
+    localNotification.description = "正在上传，请稍候...";
 
     // 将占位文件删除
     files = files.filter((item) => !item.dbUid);
@@ -232,7 +237,7 @@
 
     return async ({ update }) => {
       await update({ reset: true });
-      uploadingFileNotification.isUploading = false;
+      isUploading = false;
       // 清空图片
       filesSrc.forEach((url) => URL.revokeObjectURL(url));
       filesSrc = [];
@@ -253,7 +258,7 @@
               "
   >
     <textarea
-      disabled={uploadingFileNotification.isUploading}
+      disabled={isUploading}
       name="text"
       class="
               w-full h-full
@@ -505,7 +510,7 @@
         </span>
         <!-- 发送按钮 -->
         <button
-          disabled={uploadingFileNotification.isUploading || isEmpty}
+          disabled={isUploading || isEmpty}
           type="submit"
           class="
        

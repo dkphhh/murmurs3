@@ -10,6 +10,36 @@ export async function handle({ event, resolve }) {
             }
         });
     }
+    // 为每个请求添加简单的 notification 通知系统
+    const getNotification = () => {
+
+        const notification = event.cookies.get('notification');
+
+        if (notification) {
+            event.cookies.delete('notification', { path: '/' });
+            try {
+                const parsed = JSON.parse(notification);
+
+                return parsed
+            } catch (e) {
+                console.error('[hooks.server.ts] Error parsing notification cookie:', e);
+                return null;
+            }
+        }
+        return null;
+    };
+
+    const setNotification = (data: NotificationType) => {
+
+        event.cookies.set('notification', JSON.stringify(data), {
+            path: '/',
+            maxAge: 30, // 只保留30秒，避免通知持久化
+            httpOnly: false, // 允许 JavaScript 访问
+        });
+    };
+
+    // 将 notification 方法附加到 event.locals 上
+    event.locals.notification = { get: getNotification, set: setNotification };
 
     return svelteKitHandler({ event, resolve, auth });
 }

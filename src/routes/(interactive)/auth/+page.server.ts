@@ -1,5 +1,4 @@
 
-import { fail } from "@sveltejs/kit";
 import type { Actions } from './$types';
 import { user, account, verification, session } from "$lib/server/db/scheme/auth-schema.ts";
 import { eq } from "drizzle-orm";
@@ -17,7 +16,7 @@ const db = drizzle({
 
 
 export const actions = {
-    checkUserExist: async ({ request }) => {
+    checkUserExist: async ({ request, locals }) => {
 
         try {
             const formData = await request.formData();
@@ -41,10 +40,11 @@ export const actions = {
 
         } catch (err) {
             console.log(err);
-            return fail(422, {
-                error: true,
-                description: (err as Error).message,
-            })
+            locals.notification.set({
+                type: "error",
+                description: "检查用户是否存在时发生错误，请稍后再试",
+            });
+
 
         }
 

@@ -19,8 +19,8 @@
     <a
       href={disable
         ? "/"
-        : pathName === "/search"
-          ? `/search?q=${pathParam.get("q")}&page_num=${pageNum}`
+        : pathName === "/search/result"
+          ? `/search/result?query=${pathParam.get("query")}&page_num=${pageNum}`
           : `/page/${pageNum}`}
       class="
             mx-2 px-2 py-1 rounded

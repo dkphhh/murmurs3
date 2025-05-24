@@ -2,7 +2,6 @@
   import { enhance } from "$app/forms";
   import { authClient } from "$lib/auth/auth-client.js";
   import { clientSignIn, clientSignUp } from "$lib/auth/utils.ts";
-  import { formNotification } from "$lib/components/notification.svelte.ts";
   import { goto } from "$app/navigation";
 
   const session = authClient.useSession();
@@ -12,13 +11,6 @@
   let email = $state("");
 
   let password = $state("");
-
-  $effect(() => {
-    if (form?.error) {
-      formNotification.error = form.error;
-      formNotification.description = form.description;
-    }
-  });
 </script>
 
 <svelte:head>

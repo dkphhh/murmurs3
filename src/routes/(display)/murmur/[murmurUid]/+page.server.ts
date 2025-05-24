@@ -1,5 +1,5 @@
 import { getMurmurByUid, deleteMurmurs } from "$lib/server/db/utils";
-import { error, fail, redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from "./$types";
 
 
@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ params }) => {
 }
 
 export const actions = {
-    delete: async ({ request }) => {
+    delete: async ({ request, locals }) => {
 
         const formData = await request.formData();
 
@@ -32,10 +32,11 @@ export const actions = {
         }
         catch (err) {
             console.error(err);
-            return fail(500, {
-                error: true,
+            locals.notification.set({
+                type: "error",
                 description: "删除失败，请稍后再试",
             })
+
         }
         redirect(303, "/");
     }

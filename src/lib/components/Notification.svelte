@@ -1,52 +1,24 @@
 <script lang="ts">
   import { updated } from "$app/state";
   import { navigating } from "$app/state";
-  import {
-    formNotification,
-    searchNotification,
-    uploadingFileNotification,
-    notificationTimeout,
-    pageLoadingNotification,
-    processingNotification,
-  } from "$lib/components/notification.svelte.ts";
+  import { localNotification,notificationDuration } from "$lib/components/notification.svelte.ts";
 
   let messageVisible = $derived(
-    uploadingFileNotification.isUploading ||
-      formNotification?.error == true ||
-      uploadingFileNotification.isWrong ||
-      updated.current ||
+    localNotification.type !== undefined ||
       Boolean(navigating.to) ||
-      (!searchNotification.isValidQuery && searchNotification.query) ||
-      pageLoadingNotification.error ||
-      processingNotification.isProcessing
+      updated.current,
   );
 
-  // 不能根据状态变化自动关闭的通知，将在规定时间后自动关闭
+  // 规定时间后，自动隐藏通知
   $effect(() => {
-    if (formNotification.error) {
-      setTimeout(() => {
-        formNotification.error = false;
-      }, notificationTimeout);
-    }
-    if (uploadingFileNotification.isWrong) {
-      setTimeout(() => {
-        uploadingFileNotification.isWrong = false;
-      }, notificationTimeout);
-    }
-    if (pageLoadingNotification.error) {
-      setTimeout(() => {
-        pageLoadingNotification.error = false;
-      }, notificationTimeout);
-    }
-    if (searchNotification.query) {
-      setTimeout(() => {
-        searchNotification.query = "";
-      }, notificationTimeout);
-    }
-    if (searchNotification.isValidQuery) {
-      setTimeout(() => {
-        searchNotification.isValidQuery = false;
-      }, notificationTimeout);
+    if (localNotification.type !== undefined) {
+      const timer = setTimeout(() => {
+        localNotification.type = undefined;
+      }, notificationDuration);
+
+      return () => {
+        clearTimeout(timer);
+      };
     }
   });
 </script>
@@ -65,22 +37,16 @@
         w-fit"
   >
     <div class="text-center dark:text-slate-100 text-slate-900">
-      {#if formNotification?.error == true}
-        ⚠️ {formNotification?.description}
-      {:else if uploadingFileNotification.isUploading}
-        📤 uploading……
-      {:else if uploadingFileNotification.isWrong}
-        ⚠️ {uploadingFileNotification.wrongMessage}
+      {#if localNotification?.type == "warning"}
+        ⚠️ {localNotification?.description}
+      {:else if localNotification?.type == "error"}
+        ❌ {localNotification?.description}
+      {:else if localNotification?.type == "info"}
+        💬 {localNotification?.description}
+      {:else if navigating.to}
+        ⏳ 正在跳转到 {navigating?.to.url.pathname}...
       {:else if updated.current}
         ✅ 有版本更新，请刷新页面
-      {:else if navigating.to}
-        🚀 正在跳转到 {navigating.to.url.pathname}
-      {:else if !searchNotification.isValidQuery && searchNotification.query}
-        🔍 {searchNotification.query} 搜索结果为空
-      {:else if pageLoadingNotification.error}
-        ⚠️ {pageLoadingNotification.errorMessage}
-      {:else if processingNotification.isProcessing}
-        ⏳ {processingNotification.description}
       {:else}
         ⚠️ 未知错误,也不知道怎么就要给你发通知了
       {/if}
@@ -88,24 +54,8 @@
     <button
       onclick={() => {
         messageVisible = false;
-        if (formNotification.error) {
-          formNotification.error = false;
-        }
-        if (uploadingFileNotification.isWrong) {
-          uploadingFileNotification.isWrong = false;
-        }
-        if (pageLoadingNotification.error) {
-          pageLoadingNotification.error = false;
-        }
-        if (searchNotification.query) {
-          searchNotification.query = "";
-        }
-        if (searchNotification.isValidQuery) {
-          searchNotification.isValidQuery = false;
-        }
-        if (processingNotification.isProcessing) {
-          processingNotification.isProcessing = false;
-          processingNotification.description = "";
+        if (localNotification) {
+          localNotification.type = undefined;
         }
       }}
       class="

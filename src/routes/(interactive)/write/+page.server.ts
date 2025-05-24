@@ -6,7 +6,7 @@ import { uploadFiles } from '$lib/upload-files.ts';
 
 
 export const actions = {
-    create: async ({ request })
+    create: async ({ request, locals })
         : Promise<ReturnType<typeof fail>> => {
         const formData = await request.formData();
 
@@ -69,11 +69,10 @@ export const actions = {
                 } catch (error) {
                     console.error("处理文件和标签时出错:", (error as Error));
                     //由于这个异步函数是在后台执行的，没有 await，所以这里抛出的错误不会被外部的 try catch 模块接收，所以不抛出 error，只返回一个失败的结果
-                    return fail(422, {
-                        error: true,
+                    locals.notification.set({
+                        type: "error",
                         description: `处理文件和标签时出错:${(error as Error).message}`,
                     })
-
                 }
 
             })()
@@ -81,6 +80,10 @@ export const actions = {
         } catch (error) {
             console.error(error);
             // throw error as Error
+            locals.notification.set({
+                type: "error",
+                description: (error as Error).message,
+            })
             return fail(422, {
                 error: true,
                 description: (error as Error).message,
@@ -93,6 +96,10 @@ export const actions = {
 
         if (files.length > 0) {
             // 文件上传在后台执行，所以需要给用户一个提示
+            locals.notification.set({
+                type: "info",
+                description: "正在处理文件和标签，请稍后查看",
+            })
             redirect(303, `/murmur/${murmurUid}?processing=true`);
         }
 
@@ -102,7 +109,7 @@ export const actions = {
 
     },
 
-    update: async ({ request })
+    update: async ({ request, locals })
         : Promise<ReturnType<typeof fail>> => {
 
         // 获取表单内容
@@ -161,10 +168,11 @@ export const actions = {
                 } catch (error) {
                     console.error("处理文件更新时出错:", (error as Error));
                     //由于这个异步函数是在后台执行的，没有 await，所以这里抛出的错误不会被外部的 try catch 模块接收，所以不抛出 error，只返回一个失败的结果
-                    return fail(422, {
-                        error: true,
+                    locals.notification.set({
+                        type: "error",
                         description: `处理文件更新时出错:${(error as Error).message}`,
                     })
+
                 }
 
             })()
@@ -172,6 +180,10 @@ export const actions = {
         } catch (error) {
             console.error(error);
             // throw error as Error
+            locals.notification.set({
+                type: "error",
+                description: (error as Error).message,
+            })
             return fail(422, {
                 error: true,
                 description: (error as Error).message,
@@ -181,6 +193,10 @@ export const actions = {
 
         if (files.length > 0) {
             // 文件上传在后台执行，所以需要给用户一个提示
+            locals.notification.set({
+                type: "info",
+                description: "正在处理文件和标签，请稍后查看",
+            })
             redirect(303, `/murmur/${murmurId}?processing=true`);
         }
 

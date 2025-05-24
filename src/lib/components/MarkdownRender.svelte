@@ -11,7 +11,7 @@
   <!-- 1级标题 -->
   {#snippet h1(props)}
     {@const { children, class: className, ...rest } = props}
-    <h1 class="{className} text-3xl my-1 font-normal" {...rest}>
+    <h1 class="{className} text-3xl mt-1 mb-2 font-normal" {...rest}>
       {@render children?.()}
     </h1>
   {/snippet}
