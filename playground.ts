@@ -1,7 +1,7 @@
 // TODO: 2.0 规划
 
 
-// TODO：参照 bluesky、threads、apple 原生 app 重置，注意设计移动端ui
+// TODO：引入 daisyUI，参照 bluesky、threads、apple 原生 app 重置，注意设计移动端ui
 
 // TODO：展示 murmurs 的内容下方加上 菜单（修改、threads、等等）按钮，鼠标放到对应murmurs后显示，点击后可以进行操作
 
