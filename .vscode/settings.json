@@ -4,5 +4,6 @@
         "tsquery",
         "uids",
         "websearch"
-    ]
+    ],
+    "postman.settings.dotenv-detection-notification-visibility": false
 }

@@ -1,6 +1,9 @@
 import postgres from "postgres";
+import { PRD_DATABASE_URL, DEV_DATABASE_URL } from '$env/static/private';
+import { dev } from '$app/environment';
 
-const DATABASE_URL = process.env.DATABASE_URL
+
+const DATABASE_URL = dev ? DEV_DATABASE_URL : PRD_DATABASE_URL;
 
 
 if (!DATABASE_URL) {

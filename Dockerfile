@@ -27,7 +27,7 @@
     # docker run -d \
     # --name murmurs3 \
     # -p 3000:3000 \
-    # --env-file .env.production \ # 指定包含环境变量的文件
+    # --env-file .env \ # 指定包含环境变量的文件
     # --network murmurs3-network\ # 加入网络,确保数据库和应用在同一网络中
     # --restart unless-stopped \
     # murmurs3

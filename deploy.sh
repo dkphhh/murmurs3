@@ -23,8 +23,8 @@ echo ">>> 上传 build 和 .env Dockerfile .dockerignore 到服务器..."
 # 使用 --delete 可以在服务器上删除本地 build 目录中不存在的文件，保持同步
 rsync -avz --delete build ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}/ 
 
-# 上传 .env.production 文件
-rsync -avz .env.production ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}"/.env.production"
+# 上传 .env 文件
+rsync -avz .env ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}"/.env"
 
 # 上传 Dockerfile 和 .dockerignore 文件
 rsync -avz Dockerfile ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}"/Dockerfile"
@@ -57,7 +57,7 @@ ssh ${REMOTE_USER}@${REMOTE_HOST} << EOF
     docker run -d \
         --name $CONTAINER_NAME \
         -p 3000:3000 \
-        --env-file ${REMOTE_APP_DIR}"/.env.production" \
+        --env-file ${REMOTE_APP_DIR}"/.env" \
         --restart unless-stopped \
         --network murmurs3-network \
         $IMAGE_NAME 
