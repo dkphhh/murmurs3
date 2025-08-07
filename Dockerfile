@@ -5,11 +5,11 @@
     # 从 builder 阶段复制必要的依赖描述文件
     COPY package.json bun.lock ./
 
-   # 安装构建依赖 (Python 和 build-essential for native modules like better-sqlite3)
-   RUN apt-get update && apt-get install -y --no-install-recommends python3 build-essential && rm -rf /var/lib/apt/lists/*
+    # 安装构建依赖 (Python 和 build-essential for native modules like better-sqlite3)
+    RUN apt-get update && apt-get install -y --no-install-recommends python3 build-essential && rm -rf /var/lib/apt/lists/*
 
     # 安装生产依赖 
-    RUN bun install --production
+    RUN bun install --omit dev
     
     
     COPY build ./build
@@ -28,6 +28,6 @@
     # --name murmurs3 \
     # -p 3000:3000 \
     # --env-file .env \ # 指定包含环境变量的文件
-    # --network murmurs3-network\ # 加入网络,确保数据库和应用在同一网络中
+    # --network murmurs3-network\ # 如果数据库也是通过 docker部署，需要先新建网络，然后再通过这种方式加入网络,确保数据库和应用在同一网络中
     # --restart unless-stopped \
     # murmurs3

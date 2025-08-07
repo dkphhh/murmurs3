@@ -2,12 +2,16 @@
 set -e # 如果任何命令失败，立即退出脚本
 
 # --- 配置 ---
+
 IMAGE_NAME="murmurs3"
 CONTAINER_NAME="murmurs3"
 REMOTE_USER="root"
 REMOTE_HOST="206.237.2.2"
 REMOTE_APP_DIR="/root/murmurs3/app" # 服务器上的应用目录
 DOCKERFILE_PATH="Dockerfile" # Dockerfile 路径
+
+# 如果数据库也是通过 docker部署，需要先新建网络，然后再通过这种方式加入网络,确保数据库和应用在同一网络中
+NETWORK_NAME="murmurs3-network" # Docker 网络名称
 
 # --- 步骤 ---
 
@@ -59,7 +63,7 @@ ssh ${REMOTE_USER}@${REMOTE_HOST} << EOF
         -p 3000:3000 \
         --env-file ${REMOTE_APP_DIR}"/.env" \
         --restart unless-stopped \
-        --network murmurs3-network \
+        --network ${NETWORK_NAME} \
         $IMAGE_NAME 
 
     echo ">>> 删除所有未使用 Docker 资源..."
