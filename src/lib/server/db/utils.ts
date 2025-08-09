@@ -12,16 +12,10 @@ import type { ExtractTablesWithRelations } from "drizzle-orm";
 import * as schema from "./scheme/content-scheme.ts";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { dbClient } from "./db.ts";
-
+import { OPEN_ROUTER_API_KEY } from "$env/static/private"
 
 
 type Tx = PgTransaction<PgQueryResultHKT, typeof schema, ExtractTablesWithRelations<typeof schema>>;
-/**
- *  open router api key
- *
- * @type {string}
- */
-const OPEN_ROUTER_API_KEY = Bun.env.OPEN_ROUTER_API_KEY as string
 
 /**
  * 预设的 tag
@@ -33,59 +27,12 @@ const TAGS: string[] = ["图像", "方法论", "洞察", "科技", "幽默", "�
 
 const db = drizzle({ client: dbClient, schema });
 
-/**
- * 给前端返回的 Murmurs 类型
- *
- */
-export interface MurmursByRead {
-  murmur: SelectMurmur
-  tags: SelectTags[];
-  files: SelectMediaFile[]
-}
-
-/**
- * 给前端搜索页面返回的 Murmurs 类型
- * count 是搜索结果的总数
- */
-export interface MurmursBySearch {
-  allMurmurs: MurmursByRead[];
-  count: number;
-}
-/**
- * 给前端创建 murmur 的类型
- */
-export interface MurmurToCreate {
-  /** murmur 的内容 */
-  content: string;
-  /** murmur 的作者 id */
-  authorId: string;
-  /** murmur 的附件链接 */
-  fileUrls?: string[]
-  /** murmur 的标签 */
-  tagNames?: string[]
-  /** murmur 是否展示 */
-  display?: boolean
-}
 
 
 
-/**
- * /**
- * 给前端创建 murmur 的类型
- * @export
- * @interface MurmurToUpdate
- */
-export interface MurmurToUpdate {
-  murmurUid: string,
-  /** murmur 的内容 */
-  content?: string | undefined;
-  /** murmur 的附件链接 */
-  fileUrls?: string[] | undefined;
-  /** murmur 的标签 */
-  tagNames?: string[] | undefined;
-  /** murmur 是否展示 */
-  display?: boolean | undefined;
-}
+
+
+
 
 
 /** 

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { MurmursByRead } from "$lib/server/db/utils.ts";
   import MarkdownRender from "$lib/components/MarkdownRender.svelte";
   import { allowedMediaFileTypes } from "$lib/helper.ts";
   import { page } from "$app/state";

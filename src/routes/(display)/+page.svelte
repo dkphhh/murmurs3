@@ -5,6 +5,12 @@
   let { data } = $props();
   let user = data.session?.user;
   let dialogElement = $state<HTMLDialogElement | undefined>(undefined);
+  let showWriteArea = $state(false);
+
+  function toggleWriteAreaDialog() {
+    showWriteArea = !showWriteArea;
+    dialogElement?.showModal();
+  }
 </script>
 
 <svelte:head>
@@ -26,7 +32,7 @@
     p-3 rounded-full
 
     "
-      onclick={() => dialogElement?.showModal()}
+      onclick={toggleWriteAreaDialog}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -45,17 +51,21 @@
     </button>
   </div>
   <!-- 展示writeArea组件的dialog -->
-  <dialog class="modal" bind:this={dialogElement}>
-    <div class="modal-box py-8 px-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-      <form method="dialog">
-        <button
-          class="btn btn-sm btn-circle btn-ghost absolute right-0 top-0 hover:bg-slate-300 dark:hover:bg-slate-700
+
+  {#if showWriteArea}
+    <dialog class="modal" bind:this={dialogElement} open>
+      <div class="modal-box py-8 px-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+        <form method="dialog">
+          <button
+            class="btn btn-sm btn-circle btn-ghost absolute right-0 top-0 hover:bg-slate-300 dark:hover:bg-slate-700
           "
-        >
-          ✕</button
-        >
-      </form>
-      <WriteArea {user} action="/write?/create" />
-    </div>
-  </dialog>
+            onclick={toggleWriteAreaDialog}
+          >
+            ✕</button
+          >
+        </form>
+        <WriteArea {user} action="/write?/create" />
+      </div>
+    </dialog>
+  {/if}
 {/if}

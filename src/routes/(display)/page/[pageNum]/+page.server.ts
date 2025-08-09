@@ -1,5 +1,4 @@
 import { readMurmurs } from "$lib/server/db/utils";
-import type { MurmursByRead } from "$lib/server/db/utils";
 import { error, redirect } from '@sveltejs/kit';
 import { PAGE_SIZE, displayPageNum, countTotalPages } from "$lib/pagination";
 

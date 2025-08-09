@@ -25,7 +25,6 @@
   {#if $session.data?.user}
     <a
       href="/write"
-      target="_blank"
       class=" text-sky-700 dark:text-sky-300 hover:text-sky-500 decoration-2 underline decoration-dotted underline-offset-4"
       >Write</a
     >

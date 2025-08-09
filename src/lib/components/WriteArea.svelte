@@ -2,23 +2,11 @@
   import { enhance } from "$app/forms";
   import { onMount } from "svelte";
   import type { UserInSession } from "$lib/server/db/scheme/auth-schema.ts";
-  import type { MurmursByRead } from "$lib/server/db/utils.ts";
+  import { localStore } from "$lib/local-storage.svelte.ts";
   import { allowedMediaFileTypes } from "$lib/helper.ts";
   import WriteAreaFileUploadButton from "./WriteAreaFileUploadButton.svelte";
   import { getFileName, getFileExtension } from "$lib/helper.ts";
   import { localNotification } from "$lib/components/notification.svelte.ts";
-
-  /**
-   * @description 处理文件上传的对象
-   * @param @type {File} file - 文件对象
-   * @param @type {string} fileType - 文件对象
-   * @param @type {number} dbUid - 数据库中的id，如果是处理文件更新，需要用到这个属性
-   */
-  interface MyFile {
-    file: File;
-    fileType?: string;
-    dbUid?: number;
-  }
 
   let {
     user,
@@ -29,27 +17,37 @@
     murmurContent?: MurmursByRead;
     action: "/write?/create" | "/write?/update";
   } = $props();
+
+  const murmurContentDraft = localStore<murmurDraft>("murmurDraft", {
+    content: "",
+    fileSrc: [],
+  }).value;
+
   let authorId = user.id as string;
-  let filesSrc: string[] = $state([]); // 文件预览链接,如果是用于更新，这里为已经上传的文件的实际链接
   let files: MyFile[] = $state([]); // 实际的文件对象
-  let murmurText: string = $state(""); // 文本内容
   let tags: string[] = $state([]); // 标签内容
   let displayState: boolean = $state(true); // 是否显示，默认显示
   let isUploading: boolean = $state(false); // 是否正在上传
 
   // 表单内容是否为空
-  let isEmpty = $derived(murmurText.trim() == "" && filesSrc.length == 0);
+  let isEmpty = $derived(
+    murmurContentDraft.content.trim() == "" &&
+      murmurContentDraft.fileSrc.length == 0
+  );
 
-  // 页面加载时，检查是否有有外部传来的 props，如果有，说明是更新，将其赋值给相应的 runes
   onMount(() => {
+    // 页面加载时，检查是否有有外部传来的 props，如果有，说明是更新，将其赋值给相应的 runes
     if (murmurContent) {
-      // 如果有外部传来的 props，说明是更新，将其赋值给相应的 runes
+      // 临时保存草稿内容
+      const temporaryDraft = localStorage.getItem("murmurDraft");
 
       // 写入文本内容
-      murmurText = murmurContent?.murmur.content;
+      murmurContentDraft.content = murmurContent?.murmur.content;
 
       // 写入图片链接
-      filesSrc = murmurContent?.files.map((item) => item.fileUrl);
+      murmurContentDraft.fileSrc = murmurContent?.files.map(
+        (item) => item.fileUrl
+      );
 
       // 写入是否显示
       displayState = murmurContent?.murmur.display;
@@ -70,6 +68,26 @@
       if (murmurContent?.tags.length > 0) {
         tags = murmurContent?.tags.map((item) => item.tag);
       }
+
+      // 因为是更新，所以不保留草稿
+      return () => {
+        // 清空草稿内容
+        localStorage.removeItem("murmurDraft");
+
+        // 恢复草稿状态
+        if (temporaryDraft) {
+          try {
+            localStorage.setItem("murmurDraft", temporaryDraft);
+          } catch (error) {} // 如果解析失败，忽略错误
+        }
+      };
+    } else {
+      // 如果是创建，localStore 会自动加载草稿，这里需要过滤一下 不保留 blob: 开头的链接，因为 blob 链接是临时的，保留了也没有用
+
+      murmurContentDraft.fileSrc = murmurContentDraft.fileSrc.filter(
+        (src) => !src.startsWith("blob:")
+      );
+
     }
   });
 
@@ -83,7 +101,7 @@
    */
   function findFileIndices(
     files: MyFile[],
-    predicate: (file: MyFile) => boolean,
+    predicate: (file: MyFile) => boolean
   ): number[] {
     const indices: number[] = [];
     files.forEach((file, index) => {
@@ -99,35 +117,35 @@
   let imageFileIndex = $derived(
     findFileIndices(files, (file) =>
       allowedMediaFileTypes.image.includes(
-        file.file.name.split(".").at(-1) as string,
-      ),
-    ),
+        file.file.name.split(".").at(-1) as string
+      )
+    )
   );
   // 视频文件的索引
   let videoFileIndex = $derived(
     findFileIndices(files, (file) =>
       allowedMediaFileTypes.video.includes(
-        file.file.name.split(".").at(-1) as string,
-      ),
-    ),
+        file.file.name.split(".").at(-1) as string
+      )
+    )
   );
 
   // 音频文件的索引
   let audioFileIndex = $derived(
     findFileIndices(files, (file) =>
       allowedMediaFileTypes.audio.includes(
-        file.file.name.split(".").at(-1) as string,
-      ),
-    ),
+        file.file.name.split(".").at(-1) as string
+      )
+    )
   );
 
   // 其他文件的索引
   let otherFileIndex = $derived(
     findFileIndices(files, (file) =>
       allowedMediaFileTypes.other.includes(
-        file.file.name.split(".").at(-1) as string,
-      ),
-    ),
+        file.file.name.split(".").at(-1) as string
+      )
+    )
   );
 
   // 最大文件大小
@@ -135,7 +153,7 @@
   const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024; // 30MB in bytes
 
   /**
-   * 处理文件
+   * 处理文件，如果文件大小超过限制，显示错误通知；如果文件类型符合要求，生成预览URL并存储文件对象。
    * @param file  - 文件
    * @description 处理文件，检查类型并生成预览URL
    * @returns {void}
@@ -150,16 +168,16 @@
 
     if (
       allowedMediaFileTypes.image.includes(
-        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase(),
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
       ) ||
       allowedMediaFileTypes.video.includes(
-        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase(),
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
       ) ||
       allowedMediaFileTypes.audio.includes(
-        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase(),
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
       ) ||
       allowedMediaFileTypes.other.includes(
-        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase(),
+        (file.name.split(".").at(-1) ?? "").toLocaleLowerCase()
       )
     ) {
       const objectUrl = URL.createObjectURL(file);
@@ -169,19 +187,19 @@
         ...files,
         { file, fileType: file.name.split(".").at(-1)?.toLocaleLowerCase() },
       ];
-      filesSrc = [...filesSrc, objectUrl];
+      murmurContentDraft.fileSrc = [...murmurContentDraft.fileSrc, objectUrl];
     } else {
       localNotification.type = "error";
       localNotification.description = `${file.type.split("/")[1].toUpperCase()} 是不支持的文件类型`;
-
-      // setTimeout(() => {
-      //   // 用setTimeout可以避免被
-      //   uploadingFileNotification.isWrong = true; // 再设为 true
-      // }, 0);
     }
   }
 
-  // 处理文件选择
+  /**
+   * 处理文件选择事件。
+   * 当用户通过文件输入框选择文件后，此函数会被触发。
+   * 它会遍历所有选中的文件，并对每个文件调用 `handleFiles` 函数进行处理。
+   * @param {Event} event - 文件输入元素触发的事件对象。
+   */
   function handleFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files) {
@@ -190,13 +208,31 @@
       }
     }
   }
-  // 移除文件
+
+  /**
+   * 移除指定索引的文件及其对应的预览资源。
+   *
+   * 执行步骤：
+   * 1. 调用 URL.revokeObjectURL 释放该文件的临时 objectURL，防止内存泄漏。
+   * 2. 从 murmurContentDraft.fileSrc 与 files 两个并行数组中删除对应索引的元素，保持二者数据同步。
+   *
+   * 使用约定：
+   * - 假定传入的 index 已经过范围校验（0 <= index < murmurContentDraft.fileSrc.length）。
+   * - 若索引无效当前实现不会抛错，但可能什么也不做或出现逻辑不一致，应在调用前保证有效性。
+   *
+   * @param index 要移除的文件在列表中的索引（从 0 开始）。
+   * @sideEffects
+   * - 释放浏览器为该文件分配的内存资源（objectURL）。
+   * - 修改 murmurContentDraft.fileSrc 与外部作用域中的 files 变量。
+   */
   function removeFile(index: number) {
     // 释放不再需要的 objectURL
-    URL.revokeObjectURL(filesSrc[index]);
+    URL.revokeObjectURL(murmurContentDraft.fileSrc[index]);
 
     // 删除 imgSrc 中的图片和对应的图片对象
-    filesSrc = filesSrc.filter((_, i) => i !== index);
+    murmurContentDraft.fileSrc = murmurContentDraft.fileSrc.filter(
+      (_, i) => i !== index
+    );
     files = files.filter((_, i) => i !== index);
   }
 </script>
@@ -225,7 +261,7 @@
     });
 
     // 获取已经上传的文件的链接,如果链接开头不是 blob:，说明是已经上传的文件
-    filesSrc
+    murmurContentDraft.fileSrc
       .filter((src) => !src.startsWith("blob:"))
       .forEach((src) => {
         formData.append("filesSrc", src);
@@ -236,12 +272,16 @@
     formData.append("authorId", authorId);
 
     return async ({ update }) => {
+      // 清空图片
+      murmurContentDraft.fileSrc.forEach((url) => URL.revokeObjectURL(url));
+      murmurContentDraft.fileSrc = [];
+
+      // 清空文本内容
+      murmurContentDraft.content = "";
+      files = [];
+
       await update({ reset: true });
       isUploading = false;
-      // 清空图片
-      filesSrc.forEach((url) => URL.revokeObjectURL(url));
-      filesSrc = [];
-      files = [];
     };
   }}
 >
@@ -275,10 +315,10 @@
               bg-slate-50 dark:bg-slate-900
               "
       placeholder="请在这里输入内容……"
-      bind:value={murmurText}
+      bind:value={murmurContentDraft.content}
     ></textarea>
 
-    {#if filesSrc.length > 0}
+    {#if murmurContentDraft.fileSrc.length > 0}
       <!-- 附件展示区域 -->
       <div class="flex flex-col w-full max-h-2/3 flex-shrink-0 overflow-y-auto">
         <!-- 图片展示 -->
@@ -300,7 +340,7 @@
               {@const fileToDisplay = {
                 name: files[index].file.name,
                 index: index,
-                scr: filesSrc[index],
+                scr: murmurContentDraft.fileSrc[index],
               }}
               <div class="relative flex-shrink-0 h-full">
                 <img
@@ -340,7 +380,7 @@
               {@const fileToDisplay = {
                 name: files[index].file.name,
                 index: index,
-                scr: filesSrc[index],
+                scr: murmurContentDraft.fileSrc[index],
               }}
               <div class="relative flex-shrink-0 h-full">
                 <video
@@ -379,7 +419,7 @@
               {@const fileToDisplay = {
                 name: files[index].file.name,
                 index: index,
-                scr: filesSrc[index],
+                scr: murmurContentDraft.fileSrc[index],
               }}
               <div class="relative flex-shrink-0">
                 <audio controls crossorigin="anonymous" src={fileToDisplay.scr}>
@@ -414,7 +454,7 @@
               {@const fileToDisplay = {
                 name: files[index].file.name,
                 index: index,
-                scr: filesSrc[index],
+                scr: murmurContentDraft.fileSrc[index],
               }}
               <div class="relative flex-shrink-0">
                 <a
@@ -506,7 +546,7 @@
 
         <!-- 计算文字长度 -->
         <span class="text-slate-900 dark:text-slate-100 text-base"
-          >字数：{murmurText.length}
+          >字数：{murmurContentDraft.content.length}
         </span>
         <!-- 发送按钮 -->
         <button
