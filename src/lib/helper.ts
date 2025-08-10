@@ -8,7 +8,6 @@ export const allowedMediaFileTypes = {
     }
 }
 
-
 /**
   * 获取文件链接的后缀名（不含点），如 jpg、webp、mp4、mp3 等
   * @param url 文件链接
