@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "bunx --bun vite dev --host",
+    "dev": "bunx --bun vite dev",
     "build": "bunx --bun --env-file=.env vite build ",
     "preview": "bunx --bun vite preview",
     "production": "bun run ./build/index.js",

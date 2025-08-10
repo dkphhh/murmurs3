@@ -128,9 +128,7 @@
                 <img
                   src="https://dkphhh.me/cdn-cgi/image/height=400,quality=100/{file.fileUrl}"
                   alt={file.fileName}
-                  loading="lazy"
-                  crossorigin="anonymous"
-                  referrerpolicy="no-referrer"
+                  loading="lazy"            
                   class="h-40 w-auto object-cover rounded-lg block"
                 />
               </a>
@@ -148,7 +146,7 @@
                 class="glightbox relative flex-shrink-0"
                 aria-label="Video player"
                 ><video
-                  crossorigin="anonymous"
+                  
                   preload="metadata"
                   muted
                   class="bg-black w-auto h-40 rounded-lg block"
@@ -194,7 +192,6 @@
               <audio
                 controls
                 preload="metadata"
-                crossorigin="anonymous"
                 class="flex-shrink-0"
                 src={file.fileUrl}
               ></audio>
