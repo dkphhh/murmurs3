@@ -5,7 +5,6 @@ import {
   tags,
   mediaFile
 } from "./scheme/content-scheme.ts";
-import type { SelectMurmur, SelectTags, SelectMediaFile } from "./scheme/content-scheme.ts";
 import type { PgTransaction, PgQueryResultHKT } from "drizzle-orm/pg-core/session";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 

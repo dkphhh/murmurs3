@@ -3,7 +3,6 @@
   import { allowedMediaFileTypes } from "$lib/helper.ts";
   import { page } from "$app/state";
   import { getFileName, getFileExtension } from "$lib/helper.ts";
-  import type { SelectMediaFile } from "$lib/server/db/scheme/content-scheme.ts";
   import { onMount } from "svelte";
   import "glightbox/dist/css/glightbox.min.css";
 

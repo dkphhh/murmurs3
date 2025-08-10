@@ -1,7 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { onMount } from "svelte";
-  import type { UserInSession } from "$lib/server/db/scheme/auth-schema.ts";
   import { localStore } from "$lib/local-storage.svelte.ts";
   import { allowedMediaFileTypes } from "$lib/helper.ts";
   import WriteAreaFileUploadButton from "./WriteAreaFileUploadButton.svelte";

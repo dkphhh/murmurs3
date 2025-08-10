@@ -144,14 +144,3 @@ export const murmursToTagsRelations = relations(murmursToTags, ({ one }) => ({
 	}),
 }));
 
-
-
-// 输出 type
-export type InsertMurmur = typeof murmurs.$inferInsert;
-export type SelectMurmur = typeof murmurs.$inferSelect;
-
-export type InsertTags = typeof tags.$inferInsert;
-export type SelectTags = typeof tags.$inferSelect;
-
-export type InsertMediaFile = typeof mediaFile.$inferInsert;
-export type SelectMediaFile = typeof mediaFile.$inferSelect;

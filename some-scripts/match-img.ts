@@ -1,8 +1,6 @@
 // import * as fs from 'fs';
 // import * as csv from 'fast-csv';
 // import { createMediaFiles } from "./src/lib/server/db/utils"
-// import type { SelectMediaFile } from "./src/lib/server/db/scheme/content-scheme"
-
 // interface murmurType {
 //     uid: string,
 //     content: string,

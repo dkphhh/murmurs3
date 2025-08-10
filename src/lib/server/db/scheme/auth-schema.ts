@@ -49,15 +49,3 @@ export const verification = pgTable("verification", {
 
 
 
-export type InsertUsers = typeof user.$inferInsert;
-export type SelectUsers = typeof user.$inferSelect;
-
-export interface UserInSession {
-	id: string;
-	name: string;
-	email: string;
-	emailVerified: boolean;
-	createdAt: Date;
-	updatedAt: Date;
-	image?: string | null | undefined | undefined;
-}
